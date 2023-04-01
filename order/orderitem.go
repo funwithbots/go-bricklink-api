@@ -8,7 +8,7 @@ import (
 type Item struct {
 	InventoryID        int          `json:"inventory_id"`
 	Item               catalog.Item `json:"item"`
-	ColorId            int          `json:"color_id"`
+	ColorID            int          `json:"color_id"`
 	Quantity           int          `json:"quantity"`
 	NewOrUsed          string       `json:"new_or_used"`
 	Completeness       string       `json:"completeness"`

@@ -28,6 +28,6 @@ type PriceDetail struct {
 }
 
 type KnownColor struct {
-	ColorId  int `json:"color_id"`
+	ColorID  int `json:"color_id"`
 	Quantity int `json:"quantity"`
 }

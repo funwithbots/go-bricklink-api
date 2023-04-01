@@ -2,9 +2,8 @@ package go_bricklink_api
 
 import "github.com/funwithbots/go-bricklink-api/order"
 
-// OrderClient provides an interface for interacting with the Order API.
-// TODO Is it a client??
-type OrderClient interface {
+// OrderAPI provides an interface for interacting with the Order API.
+type OrderAPI interface {
 	GetOrders(direction string, status string, filed bool) ([]order.Order, error)
 	GetOrder(orderID int) error
 	GetOrderItems(orderID int) ([]order.Item, error)

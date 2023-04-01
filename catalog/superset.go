@@ -1,7 +1,7 @@
 package catalog
 
 type Superset struct {
-	ColorId int `json:"color_id"`
+	ColorID int `json:"color_id"`
 	Entries []struct {
 		Item      Item   `json:"item"`
 		Quantity  int    `json:"quantity"`

@@ -10,7 +10,7 @@ import (
 type Item struct {
 	ID      int          `json:"inventory_id, omitempty"`
 	Item    catalog.Item `json:"item"`
-	ColorId int          `json:"color_id"`
+	ColorID int          `json:"color_id"`
 
 	// When updating item with a new quantity, you must specify the difference between the new quantity and
 	// the old quantity as a plus/minus value.
@@ -18,7 +18,7 @@ type Item struct {
 	NewOrUsed     string    `json:"new_or_used,omitempty"`
 	Completeness  string    `json:"completeness,omitempty"`
 	UnitPrice     string    `json:"unit_price"`
-	BindId        int       `json:"bind_id,omitempty"`
+	BindID        int       `json:"bind_id,omitempty"`
 	Description   string    `json:"description"`
 	Remarks       string    `json:"remarks"`
 	Bulk          int       `json:"bulk"`
