@@ -1,6 +1,9 @@
-package color
+package reference
 
-import "github.com/funwithbots/go-bricklink-api/util"
+import (
+	"github.com/funwithbots/go-bricklink-api"
+	"github.com/funwithbots/go-bricklink-api/util"
+)
 
 type Color struct {
 	ID        int    `json:"color_id"`
@@ -10,6 +13,14 @@ type Color struct {
 }
 
 var Colors map[int]Color
+
+func (c Color) PrimaryKey() int {
+	return c.ID
+}
+
+func (c Color) Label() go_bricklink_api.Type {
+	return go_bricklink_api.Color
+}
 
 // GetColors returns a list of colors.
 func GetColors() ([]Color, error) {

@@ -1,15 +1,11 @@
 package inventory
 
-import "github.com/funwithbots/go-bricklink-api/util"
+import (
+	"github.com/funwithbots/go-bricklink-api/util"
+)
 
-type Inventory struct {
-	InventoryID string `json:"inventory_id"`
-}
+type Inventory []Item
 
-func GetInventoryList() ([]Inventory, error) {
-	return nil, util.ErrNotImplemented
-}
-
-func GetInventory(id string) (*Item, error) {
+func GetInventories(id string) (Inventory, error) {
 	return nil, util.ErrNotImplemented
 }

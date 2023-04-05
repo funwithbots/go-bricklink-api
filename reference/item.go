@@ -1,6 +1,11 @@
-package catalog
+package reference
 
-import "github.com/funwithbots/go-bricklink-api/util"
+import (
+	"hash/fnv"
+
+	"github.com/funwithbots/go-bricklink-api"
+	"github.com/funwithbots/go-bricklink-api/util"
+)
 
 var ItemTypes = map[string]string{
 	"S": "Set",
@@ -22,7 +27,7 @@ const (
 type Item struct {
 	ID           string `json:"no"`
 	Name         string `json:"name"`
-	Type         string `json:"type"`
+	ItemType     string `json:"type"`
 	CategoryID   int    `json:"category_id"`
 	alternateNo  string `json:"alternate_no"`
 	ImageURL     string `json:"image_url"`
@@ -38,6 +43,16 @@ type Item struct {
 	Description  string `json:"description"`
 	IsObsolete   bool   `json:"is_obsolete"`
 	LanguageCode string `json:"language_code"`
+}
+
+func (it *Item) PrimaryKey() int {
+	hash := fnv.New32a()
+	hash.Write([]byte(it.ID))
+	return int(hash.Sum32())
+}
+
+func (it *Item) Label() go_bricklink_api.Type {
+	return go_bricklink_api.Inventory
 }
 
 // GetSupersets returns a list of supersets that contain the item.

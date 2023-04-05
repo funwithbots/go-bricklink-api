@@ -1,4 +1,4 @@
-package catalog
+package reference
 
 type Subset struct {
 	MatchNo int `json:"match_no"`

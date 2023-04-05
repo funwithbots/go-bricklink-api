@@ -1,6 +1,11 @@
-package catalog
+package reference
 
-import "github.com/funwithbots/go-bricklink-api/util"
+import (
+	"hash/fnv"
+
+	"github.com/funwithbots/go-bricklink-api"
+	"github.com/funwithbots/go-bricklink-api/util"
+)
 
 // Mapping maps a unique identifier to a Bricklink item/part/type combination.
 type Mapping struct {
@@ -8,6 +13,16 @@ type Mapping struct {
 	ColorID   int    `json:"color_id"`
 	ColorName string `json:"color_name"`
 	ElementID string `json:"element_id"`
+}
+
+func (m Mapping) PrimaryKey() string {
+	hash := fnv.New32a()
+	hash.Write([]byte(m.ElementID))
+	return string(hash.Sum32())
+}
+
+func (m Mapping) Label() go_bricklink_api.Type {
+	return go_bricklink_api.Mapping
 }
 
 // GetElementID returns the element ID for a specific item/part/type combination.

@@ -1,4 +1,4 @@
-package catalog
+package reference
 
 type Superset struct {
 	ColorID int `json:"color_id"`

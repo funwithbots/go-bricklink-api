@@ -1,6 +1,6 @@
 package inventory
 
-type RequestOption func(opts requestOptions) requestOptions
+type RequestOption func(opts *requestOptions)
 
 // Slices are converted to a comma-separated string to specify multiple values to include/exclude.
 // Add a minus "-" sign to specify a value to exclude.
@@ -20,35 +20,31 @@ func (ro *requestOptions) ToQueryString() string {
 
 func (ro *requestOptions) withOpts(opts []RequestOption) {
 	for _, opt := range opts {
-		*ro = opt(*ro)
+		opt(ro)
 	}
 }
 
 func WithItemType(itemType string) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.ItemType = append(opts.ItemType, itemType)
-		return opts
 	}
 }
 
 func WithStatus(status string) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.Status = append(opts.Status, status)
-		return opts
 	}
 }
 
 func WithCategoryID(categoryID int) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.CategoryID = append(opts.CategoryID, categoryID)
-		return opts
 	}
 }
 
 func WithColorID(colorID int) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.ColorID = append(opts.ColorID, colorID)
-		return opts
 	}
 }
 

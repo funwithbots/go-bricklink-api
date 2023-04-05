@@ -1,16 +1,17 @@
 package inventory
 
 import (
+	"net/http"
 	"time"
 
-	"github.com/funwithbots/go-bricklink-api/catalog"
+	"github.com/funwithbots/go-bricklink-api/reference"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
 type Item struct {
-	ID      int          `json:"inventory_id, omitempty"`
-	Item    catalog.Item `json:"item"`
-	ColorID int          `json:"color_id"`
+	ID      int            `json:"inventory_id, omitempty"`
+	Item    reference.Item `json:"item"`
+	ColorID int            `json:"color_id"`
 
 	// When updating item with a new quantity, you must specify the difference between the new quantity and
 	// the old quantity as a plus/minus value.
@@ -36,11 +37,18 @@ type Item struct {
 	TierPrice3    string    `json:"tier_price3"`
 }
 
-func (it *Item) CreateInventory() (*Item, error) {
+// GetItem implements the Get store inventory endpoint.
+// https://www.bricklink.com/v3/api.page?page=get-inventory
+func GetItem(id string) (*http.Request, error) {
 	return nil, util.ErrNotImplemented
 }
 
-func (it *Item) UpdateInventory() (*Item, error) {
+// CreateItem
+func (it *Item) CreateItem() (*Item, error) {
+	return nil, util.ErrNotImplemented
+}
+
+func (it *Item) UpdateItem() (*Item, error) {
 	return nil, util.ErrNotImplemented
 }
 

@@ -1,4 +1,4 @@
-package catalog
+package reference
 
 import (
 	"golang.org/x/exp/slices"
@@ -6,7 +6,7 @@ import (
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
-type RequestOption func(opts requestOptions) requestOptions
+type RequestOption func(opts *requestOptions)
 
 type requestOptions struct {
 	itemType      string
@@ -33,7 +33,7 @@ func (ro *requestOptions) ToQueryString() string {
 
 func (ro *requestOptions) withOpts(opts []RequestOption) {
 	for _, opt := range opts {
-		*ro = opt(*ro)
+		opt(ro)
 	}
 }
 
@@ -41,58 +41,51 @@ func WithItemType(itemType string) RequestOption {
 	if _, ok := ItemTypes[itemType]; !ok {
 		return nil
 	}
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.itemType = itemType
-		return opts
 	}
 }
 
 // WithItemNo sets the item number filter.
 // It will be ignored if the calling function is a member function of the item type.
 func WithItemNo(itemNo string) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.itemNo = itemNo
-		return opts
 	}
 }
 
 // WithColorID sets the color ID filter.
 func WithColorID(colorID int) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.colorID = &colorID
-		return opts
 	}
 }
 
 // WithBox sets the box flag filter.
 func WithBox(box bool) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.box = &box
-		return opts
 	}
 }
 
 // WithInstruction sets the instruction flag filter.
 func WithInstruction(instruction bool) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.instruction = &instruction
-		return opts
 	}
 }
 
 // WithBreakMinifigs sets the break minifigs flag filter.
 func WithBreakMinifigs(breakMinifigs bool) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.breakMinifigs = &breakMinifigs
-		return opts
 	}
 }
 
 // WithBreakSubsets sets the break subsets flag filter.
 func WithBreakSubsets(breakSubsets bool) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.breakSubsets = &breakSubsets
-		return opts
 	}
 }
 
@@ -101,9 +94,8 @@ func WithGuideType(guideType string) RequestOption {
 	if guideTypeSold != guideType && guideTypeStock != guideType {
 		return nil
 	}
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.guideType = guideType
-		return opts
 	}
 }
 
@@ -112,33 +104,29 @@ func WithCondition(condition string) RequestOption {
 	if util.New != condition && util.Used != condition {
 		return nil
 	}
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.condition = condition
-		return opts
 	}
 }
 
 // WithCountryCode sets the country code filter.
 func WithCountryCode(countryCode string) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.countryCode = countryCode
-		return opts
 	}
 }
 
 // WithRegion sets the region filter.
 func WithRegion(region string) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.region = region
-		return opts
 	}
 }
 
 // WithCurrencyCode sets the currency code filter.
 func WithCurrencyCode(currencyCode string) RequestOption {
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.currencyCode = currencyCode
-		return opts
 	}
 }
 
@@ -147,8 +135,7 @@ func WithVAT(vat string) RequestOption {
 	if !slices.Contains([]string{"Y", "N", "O"}, vat) {
 		return nil
 	}
-	return func(opts requestOptions) requestOptions {
+	return func(opts *requestOptions) {
 		opts.vat = vat
-		return opts
 	}
 }

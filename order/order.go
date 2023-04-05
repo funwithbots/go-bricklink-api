@@ -77,6 +77,10 @@ type Header struct {
 	} `json:"disp_cost,omitempty"`
 }
 
+func (o Order) PrimaryKey() int {
+	return o.ID
+}
+
 // GetOrders retrieves a list of orders you received or placed.
 // https://www.bricklink.com/v3/api.page?page=get-orders
 func (Order) GetOrders(direction OrderDirection, statuses []Status, filed bool) ([]Order, error) {
@@ -130,4 +134,8 @@ func (Order) SendDriveThrough(id int) error {
 type OrderUpdateRequest struct {
 	Field string `json:"field`
 	Value string `json:"value"`
+}
+
+func (Order) GetOrderFeedback(orderID int) ([]interface{}, error) {
+	return nil, util.ErrNotImplemented
 }

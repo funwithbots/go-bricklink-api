@@ -1,16 +1,15 @@
-package member
+package order
 
 import (
 	"time"
 
-	"github.com/funwithbots/go-bricklink-api/feedback"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
 // Member represents a Bricklink member.
 type Member struct {
 	UserName string
-	Ratings  []feedback.Feedback
+	Ratings  []Feedback
 	Note     Note
 }
 
@@ -18,7 +17,7 @@ type Member struct {
 type MemberRating struct {
 	UserName string `json:"user_name"`
 
-	Rating []feedback.Feedback `json:"rating"`
+	Rating []Feedback `json:"rating"`
 }
 
 // Note represents a note about a member.
@@ -33,6 +32,10 @@ type Note struct {
 func GetMemberRatings(memberID string) ([]MemberRating, error) {
 	// TODO implement me
 	return nil, util.ErrNotImplemented
+}
+
+func (m *Member) PrimaryKey() string {
+	return m.UserName
 }
 
 // GetNote returns the note for a specific member.
@@ -69,4 +72,8 @@ func (m *Member) updateNote(note string) (*Note, error) {
 func (m *Member) DeleteNote() error {
 	// TODO implement me
 	return util.ErrNotImplemented
+}
+
+func (n *Note) PrimaryKey() string {
+	return n.UserName
 }

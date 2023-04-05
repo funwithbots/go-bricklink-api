@@ -2,6 +2,9 @@ package go_bricklink_api
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha1"
+	"errors"
 	"net/http"
 
 	"github.com/funwithbots/go-bricklink-api/util"
@@ -14,7 +17,8 @@ const (
 )
 
 type Client interface {
-	Orders() OrderClient
+	NewRequest(method string, baseUrl string) (*http.Request, error)
+	Do(ctx context.Context, req *http.Request) (*http.Response, error)
 }
 
 type client struct {
@@ -23,19 +27,25 @@ type client struct {
 	OathToken   string
 }
 
-func (c *client) makeRequest(ctx context.Context, method string, opts ...options) (*http.Request, error) {
-	return nil, util.ErrNotImplemented
+func (c *client) NewRequest(method string, baseUrl string) (*http.Request, error) {
+	req, err := http.NewRequest(method, baseUrl, nil)
+	if err != nil {
+		return nil, util.ErrInvalidArgument
+	}
+	return req, util.ErrNotImplemented
 }
 
-func (c *client) sendRequest(ctx context.Context, req *http.Request) (*http.Response, error) {
-	return nil, util.ErrNotImplemented
+func (c *client) Do(ctx context.Context, req *http.Request) (*http.Response, error) {
+	c.addHash(req)
+	return c.HTTP.Do(req)
 }
 
-type options interface {
-	withOpts(opts []func(opts any) any)
+func (c *client) addHash(req *http.Request) {
+	h := hmac.New(sha1.New, []byte(c.ConsumerKey+c.OathToken+req.URL.String()))
+	req.Header.Add("oath_signature", string(h.Sum(nil)))
 }
 
-type ClientOption func(opts clientOptions) clientOptions
+type ClientOption func(opts *client)
 
 type clientOptions struct {
 	HTTP        *http.Client
@@ -43,33 +53,43 @@ type clientOptions struct {
 	OathToken   string
 }
 
-func (co *clientOptions) withOpts(opts []func(opts clientOptions) clientOptions) {
+func (c *client) withOpts(opts []ClientOption) {
 	for _, opt := range opts {
-		*co = opt(*co)
+		opt(c)
 	}
 }
 
 func WithHTTPClient(http *http.Client) ClientOption {
-	return func(opts clientOptions) clientOptions {
+	return func(opts *client) {
 		opts.HTTP = http
-		return opts
 	}
 }
 
 func WithConsumerKey(consumerKey string) ClientOption {
-	return func(opts clientOptions) clientOptions {
+	return func(opts *client) {
 		opts.ConsumerKey = consumerKey
-		return opts
 	}
 }
 
 func WithOathToken(oathToken string) ClientOption {
-	return func(opts clientOptions) clientOptions {
+	return func(opts *client) {
 		opts.OathToken = oathToken
-		return opts
 	}
 }
 
-func NewClient(opts ...ClientOption) Client {
-	return nil
+func NewClient(opts ...ClientOption) (Client, error) {
+	c := &client{
+		HTTP: http.DefaultClient,
+	}
+	c.withOpts(opts)
+
+	if c.ConsumerKey == "" {
+		return nil, errors.New("consumer key is required")
+	}
+
+	if c.OathToken == "" {
+		return nil, errors.New("oath token is required")
+	}
+
+	return c, nil
 }

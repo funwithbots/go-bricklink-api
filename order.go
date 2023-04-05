@@ -13,31 +13,38 @@ type OrderAPI interface {
 	UpdateStatus(orderID int) error
 	UpdatePaymentStatus(orderID int, status string) error
 	SendDriveThrough(orderID int) error
+
+	// Member
+	GetNote() (*order.Note, error)
+	UpsertNote(note string) (*order.Note, error)
+	DeleteNote() error
+
+	// Feedback
+	PostFeedback() (*order.Feedback, error)
+	ReplyFeedback() error
 }
 
-type OrderOption func(opts orderOptions) orderOptions
+type OrderOption func(opts *orderOptions)
 
 type orderOptions struct {
 	id   string
 	body string
 }
 
-func (oo *orderOptions) withOpts(opts []func(opts orderOptions) orderOptions) {
+func (oo *orderOptions) withOpts(opts []func(opts *orderOptions)) {
 	for _, opt := range opts {
-		*oo = opt(*oo)
+		opt(oo)
 	}
 }
 
 func WithID(id string) OrderOption {
-	return func(opts orderOptions) orderOptions {
+	return func(opts *orderOptions) {
 		opts.id = id
-		return opts
 	}
 }
 
 func WithBody(body string) OrderOption {
-	return func(opts orderOptions) orderOptions {
+	return func(opts *orderOptions) {
 		opts.body = body
-		return opts
 	}
 }
