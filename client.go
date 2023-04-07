@@ -7,6 +7,8 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/joho/godotenv"
+
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
@@ -62,6 +64,23 @@ func (c *client) withOpts(opts []ClientOption) {
 func WithHTTPClient(http *http.Client) ClientOption {
 	return func(opts *client) {
 		opts.HTTP = http
+	}
+}
+
+// WithEnv reads the environment variables from the specified files and sets them on the client.
+// If the files are not specified, it will read from .env in the project root.
+// If the expected file is not found, it will do nothing.
+func WithEnv(files ...string) ClientOption {
+	return func(opts *client) {
+		if env, err := godotenv.Read(files...); err == nil {
+			if key, ok := env["BL_API_KEY"]; ok {
+				opts.ConsumerKey = key
+			}
+			if token, ok := env["BL_API_TOKEN"]; ok {
+				opts.OathToken = token
+			}
+		}
+
 	}
 }
 

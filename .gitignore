@@ -5,6 +5,9 @@
 *.so
 *.dylib
 
+// Files that should never be in a repository
+.env
+
 # Test binary, built with `go test -c`
 *.test
 

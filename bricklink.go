@@ -32,11 +32,8 @@ type Content interface {
 type Options interface {
 }
 
-type API interface {
-	Get(opts Options) (Content, error)
-	GetList(opts Options) ([]Content, error)
-	Insert(content Content) (Content, error)
-	InsertList(contents []Content) error
-	Update(content Content) (Content, error)
-	Delete(id int) error
+type Bricklink interface {
+	Reference() ReferenceAPI
+	Inventory() InventoryAPI
+	Order() OrderAPI
 }
