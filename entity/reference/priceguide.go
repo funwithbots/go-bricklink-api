@@ -1,6 +1,11 @@
 package reference
 
-import "time"
+import (
+	"time"
+
+	"github.com/funwithbots/go-bricklink-api/entity"
+	"github.com/funwithbots/go-bricklink-api/util"
+)
 
 type PriceGuide struct {
 	Item struct {
@@ -27,7 +32,15 @@ type PriceDetail struct {
 	ShippingAvailable string    `json:"shipping_available"`
 }
 
-type KnownColor struct {
-	ColorID  int `json:"color_id"`
-	Quantity int `json:"quantity"`
+// PrimaryKey isn't meaningful for this entity.
+func (pg *PriceGuide) PrimaryKey() int {
+	return 0
+}
+
+func (pg *PriceGuide) Label() entity.Label {
+	return entity.LabelPriceGuide
+}
+
+func GetPriceGuide(options ...RequestOption) (PriceGuide, error) {
+	return PriceGuide{}, util.ErrNotImplemented
 }

@@ -1,12 +1,14 @@
 package inventory
 
+import "fmt"
+
 type RequestOption func(opts *requestOptions)
 
 // Slices are converted to a comma-separated string to specify multiple values to include/exclude.
 // Add a minus "-" sign to specify a value to exclude.
 type requestOptions struct {
 	ItemType   []string // item_type
-	Status     []string // status
+	Statuses   []string // status
 	CategoryID []int    // category_id
 	ColorID    []int    // color_id
 }
@@ -30,9 +32,15 @@ func WithItemType(itemType string) RequestOption {
 	}
 }
 
-func WithStatus(status string) RequestOption {
+func WithIncludeStatus(status Status) RequestOption {
 	return func(opts *requestOptions) {
-		opts.Status = append(opts.Status, status)
+		opts.Statuses = append(opts.Statuses, status.String())
+	}
+}
+
+func WithExcludeStatus(status Status) RequestOption {
+	return func(opts *requestOptions) {
+		opts.Statuses = append(opts.Statuses, fmt.Sprintf("-%s", status.String()))
 	}
 }
 
@@ -46,10 +54,4 @@ func WithColorID(colorID int) RequestOption {
 	return func(opts *requestOptions) {
 		opts.ColorID = append(opts.ColorID, colorID)
 	}
-}
-
-func NewRequest(opts ...RequestOption) *requestOptions {
-	ro := &requestOptions{}
-	ro.withOpts(opts)
-	return ro
 }

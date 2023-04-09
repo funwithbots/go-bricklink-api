@@ -1,9 +1,7 @@
 package reference
 
 import (
-	"context"
-	"net/http"
-
+	"github.com/funwithbots/go-bricklink-api/entity"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
@@ -14,20 +12,12 @@ type Category struct {
 	ParentId     int    `json:"parent_id"`
 }
 
-func (c *Category) Get(ctx context.Context, req *http.Request) (*http.Response, error) {
-	return nil, util.ErrNotImplemented
+func (c *Category) PrimaryKey() int {
+	return c.ID
 }
 
-func (c *Category) Insert(ctx context.Context, req *http.Request) (*http.Response, error) {
-	return nil, util.ErrNotImplemented
-}
-
-func (c *Category) Update(ctx context.Context, req *http.Request) (*http.Response, error) {
-	return nil, util.ErrNotImplemented
-}
-
-func (c *Category) Delete(ctx context.Context, req *http.Request) (*http.Response, error) {
-	return nil, util.ErrNotImplemented
+func (c *Category) Label() entity.Label {
+	return entity.LabelCategory
 }
 
 // GetCategories returns a list of categories.

@@ -1,7 +1,8 @@
 package order
 
 import (
-	"github.com/funwithbots/go-bricklink-api/reference"
+	"github.com/funwithbots/go-bricklink-api/entity"
+	"github.com/funwithbots/go-bricklink-api/entity/reference"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
@@ -24,6 +25,10 @@ type Item struct {
 
 func (it Item) PrimaryKey() int {
 	return it.InventoryID
+}
+
+func (it Item) Label() entity.Label {
+	return entity.LabelOrderItem
 }
 
 func (Order) GetOrderItems(orderID int) ([]Item, error) {

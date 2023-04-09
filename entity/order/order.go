@@ -3,6 +3,7 @@ package order
 import (
 	"time"
 
+	"github.com/funwithbots/go-bricklink-api/entity"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
@@ -22,7 +23,7 @@ type Header struct {
 	BuyerName         string    `json:"buyer_name,omitempty"`
 	BuyerEmail        string    `json:"buyer_email,omitempty"`
 	RequireInsurance  bool      `json:"require_insurance,omitempty"`
-	Status            string    `json:"status,omitempty"`
+	Status            Status    `json:"status,omitempty"`
 	IsInvoiced        bool      `json:"is_invoiced,omitempty"`
 	Remarks           string    `json:"remarks"`
 	TotalCount        int       `json:"total_count,omitempty"`
@@ -81,29 +82,33 @@ func (o Order) PrimaryKey() int {
 	return o.ID
 }
 
+func (o Order) Label() entity.Label {
+	return entity.LabelOrder
+}
+
 // GetOrders retrieves a list of orders you received or placed.
 // https://www.bricklink.com/v3/api.page?page=get-orders
-func (Order) GetOrders(direction OrderDirection, statuses []Status, filed bool) ([]Order, error) {
+func GetOrders(...RequestOption) ([]Order, error) {
 	// TODO implement me
 	return nil, util.ErrNotImplemented
 }
 
 // GetOrder retrieves the details of a specific order.
 // https://www.bricklink.com/v3/api.page?page=get-order
-func (o *Order) GetOrder(id int) error {
+func GetOrder(orderID int) (Order, error) {
 	// TODO implement me
-	return util.ErrNotImplemented
+	return Order{}, util.ErrNotImplemented
 }
 
 // UpdateOrder updates properties of a specific order
 // https://www.bricklink.com/v3/api.page?page=update-order
-func (o *Order) UpdateOrder(id int, order Order) error {
+func (o *Order) UpdateOrder() error {
 	return util.ErrNotImplemented
 }
 
 // UpdateStatus updates the order status for id.
 // https://www.bricklink.com/v3/api.page?page=update-order-status
-func (o *Order) UpdateStatus(id int, status string) error {
+func (o *Order) UpdateStatus(...RequestOption) error {
 	// request payload
 	// {
 	// 	"field" : "status",

@@ -1,10 +1,10 @@
 package inventory
 
 import (
-	"net/http"
 	"time"
 
-	"github.com/funwithbots/go-bricklink-api/reference"
+	"github.com/funwithbots/go-bricklink-api/entity"
+	"github.com/funwithbots/go-bricklink-api/entity/reference"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
@@ -37,10 +37,18 @@ type Item struct {
 	TierPrice3    string    `json:"tier_price3"`
 }
 
-// GetItem implements the Get store inventory endpoint.
+func (it Item) PrimaryKey() int {
+	return it.ID
+}
+
+func (it Item) Label() entity.Label {
+	return entity.LabelInventoryItem
+}
+
+// GetInventoryItem implements the Get store inventory endpoint.
 // https://www.bricklink.com/v3/api.page?page=get-inventory
-func GetItem(id string) (*http.Request, error) {
-	return nil, util.ErrNotImplemented
+func GetInventoryItem(id string) (entity.Entity, error) {
+	return Item{}, util.ErrNotImplemented
 }
 
 // CreateItem

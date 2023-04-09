@@ -1,7 +1,7 @@
 package reference
 
 import (
-	"github.com/funwithbots/go-bricklink-api"
+	"github.com/funwithbots/go-bricklink-api/entity"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
@@ -18,8 +18,8 @@ func (c Color) PrimaryKey() int {
 	return c.ID
 }
 
-func (c Color) Label() go_bricklink_api.Type {
-	return go_bricklink_api.Color
+func (c Color) Label() entity.Label {
+	return entity.LabelColor
 }
 
 // GetColors returns a list of colors.

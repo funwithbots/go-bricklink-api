@@ -3,6 +3,7 @@ package order
 import (
 	"time"
 
+	"github.com/funwithbots/go-bricklink-api/entity"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
@@ -24,6 +25,14 @@ type Feedback struct {
 	Rater     string      `json:"rating_of_bs,omitempty"` // rating of buyer or seller (B or S)
 	Comment   string      `json:"comment"`
 	Reply     string      `json:"reply,omitempty"`
+}
+
+func (f *Feedback) PrimaryKey() int {
+	return f.ID
+}
+
+func (f *Feedback) Label() entity.Label {
+	return entity.LabelFeedback
 }
 
 // PostFeedback posts feedback for an order.

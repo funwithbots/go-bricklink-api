@@ -37,12 +37,9 @@ func (ro *requestOptions) withOpts(opts []RequestOption) {
 	}
 }
 
-func WithItemType(itemType string) RequestOption {
-	if _, ok := ItemTypes[itemType]; !ok {
-		return nil
-	}
+func WithItemType(typ util.ItemType) RequestOption {
 	return func(opts *requestOptions) {
-		opts.itemType = itemType
+		opts.itemType = typ.String()
 	}
 }
 

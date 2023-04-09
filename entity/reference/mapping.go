@@ -3,7 +3,7 @@ package reference
 import (
 	"hash/fnv"
 
-	"github.com/funwithbots/go-bricklink-api"
+	"github.com/funwithbots/go-bricklink-api/entity"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
@@ -21,8 +21,8 @@ func (m Mapping) PrimaryKey() string {
 	return string(hash.Sum32())
 }
 
-func (m Mapping) Label() go_bricklink_api.Type {
-	return go_bricklink_api.Mapping
+func (m Mapping) Label() entity.Label {
+	return entity.LabelMapping
 }
 
 // GetElementID returns the element ID for a specific item/part/type combination.
@@ -32,7 +32,7 @@ func GetElementID(item Item, colorID int) (string, error) {
 }
 
 // GetMapping returns the mapping resource for an Element ID.
-func GetMapping(elementID string) (*Mapping, error) {
+func GetMapping(elementID string) (Mapping, error) {
 	// TODO implement me
-	return nil, util.ErrNotImplemented
+	return Mapping{}, util.ErrNotImplemented
 }

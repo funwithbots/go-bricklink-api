@@ -1,8 +1,9 @@
 package order
 
 import (
-	"time"
+	"hash/fnv"
 
+	"github.com/funwithbots/go-bricklink-api/entity"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
@@ -20,22 +21,20 @@ type MemberRating struct {
 	Rating []Feedback `json:"rating"`
 }
 
-// Note represents a note about a member.
-type Note struct {
-	ID        int       `json:"note_id,omitempty"`
-	UserName  string    `json:"user_name"`
-	Note      string    `json:"note_text"`
-	DateNoted time.Time `json:"date_noted,omitempty"`
-}
-
 // GetMemberRatings returns the details feedback ratings for a specific member.
 func GetMemberRatings(memberID string) ([]MemberRating, error) {
 	// TODO implement me
 	return nil, util.ErrNotImplemented
 }
 
-func (m *Member) PrimaryKey() string {
-	return m.UserName
+func (m *Member) PrimaryKey() int {
+	hash := fnv.New32a()
+	hash.Write([]byte(m.UserName))
+	return int(hash.Sum32())
+}
+
+func (m *Member) Label() entity.Label {
+	return entity.LabelMember
 }
 
 // GetNote returns the note for a specific member.
@@ -72,8 +71,4 @@ func (m *Member) updateNote(note string) (*Note, error) {
 func (m *Member) DeleteNote() error {
 	// TODO implement me
 	return util.ErrNotImplemented
-}
-
-func (n *Note) PrimaryKey() string {
-	return n.UserName
 }
