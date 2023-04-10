@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-type Content struct {
+type content struct {
 	Meta Meta            `json:"meta"`
 	Data json.RawMessage `json:"data"`
 }
@@ -17,7 +17,7 @@ func Parse(body io.Reader, v interface{}) error {
 		return err
 	}
 
-	var c Content
+	var c content
 	if err := json.Unmarshal(buf, &c); err != nil {
 		return err
 	}

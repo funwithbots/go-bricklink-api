@@ -56,3 +56,7 @@ func GetFeedbackList(dir FeedbackDirection) ([]Feedback, error) {
 func GetFeedback(id int) (*Feedback, error) {
 	return nil, util.ErrNotImplemented
 }
+
+func GetOrderFeedback(orderID int) ([]Feedback, error) {
+	return nil, util.ErrNotImplemented
+}

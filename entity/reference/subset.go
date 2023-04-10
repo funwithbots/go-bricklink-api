@@ -1,8 +1,13 @@
 package reference
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+
 	"github.com/funwithbots/go-bricklink-api/entity"
-	"github.com/funwithbots/go-bricklink-api/util"
+	"github.com/funwithbots/go-bricklink-api/internal"
 )
 
 type Subset []SubsetItem
@@ -28,7 +33,35 @@ func (sub *Subset) Label() entity.Label {
 	return entity.LabelSubset
 }
 
-func GetSubsets(opts ...RequestOption) (Subset, error) {
-	// TODO implement me
-	return nil, util.ErrNotImplemented
+// GetSubset returns a list of items that make up the item.
+func (r *Reference) GetSubset(options ...RequestOption) (Subset, error) {
+	var opts = requestOptions{}
+	opts.withOpts(options)
+	if opts.itemNo == "" {
+		return nil, errors.New("id is required")
+	}
+	if opts.itemType == "" {
+		return nil, errors.New("type is required")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	defer cancel()
+
+	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetSubset, opts.itemType, opts.itemNo), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := r.bl.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var items []SubsetItem
+	if err := internal.Parse(res.Body, &items); err != nil {
+		return nil, err
+	}
+
+	subset := items
+
+	return subset, nil
 }

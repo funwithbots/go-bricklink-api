@@ -11,30 +11,6 @@ import (
 	"github.com/funwithbots/go-bricklink-api/internal"
 )
 
-var ItemTypes = map[string]string{
-	"S": "Set",
-	"P": "Part",
-	"M": "Minifig",
-	"G": "Gear",
-	"B": "Book",
-	"C": "Catalog",
-	"O": "Original Box",
-	"X": "Instruction",
-	"U": "Unsorted Lot",
-}
-
-const (
-	guideTypeSold  = "sold"
-	guideTypeStock = "stock"
-
-	pathGetItem        = "/items/%s/%s"
-	pathGetItemImage   = "/items/%s/%s/images/%s"
-	pathGetSupersets   = "/items/%s/%s/supersets"
-	pathGetSubsets     = "/items/%s/%s/subsets"
-	pathGetPriceGuide  = "/items/%s/%s/price/%s"
-	pathGetKnownColors = "/items/%s/%s/colors"
-)
-
 type Item struct {
 	ID           string `json:"no"`
 	Name         string `json:"name"`
@@ -75,8 +51,7 @@ func (r *Reference) GetCatalogItem(options ...RequestOption) (*Item, error) {
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
 	}
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, r.bl.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
 
 	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItem, opts.itemType, opts.itemNo), nil)
@@ -93,23 +68,6 @@ func (r *Reference) GetCatalogItem(options ...RequestOption) (*Item, error) {
 	if err := internal.Parse(res.Body, &item); err != nil {
 		return nil, err
 	}
-	// buf, err := io.ReadAll(res.Body)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	//
-	// var c bricklink.Content
-	// if err := json.Unmarshal(buf, &c); err != nil {
-	// 	return nil, err
-	// }
-	//
-	// var item Item
-	// if err := json.Unmarshal(c.Data, &item); err != nil {
-	// 	return nil, err
-	// }
-	// if c.Meta.Code != 200 {
-	// 	return nil, errors.New(c.Meta.Message)
-	// }
 
 	return &item, nil
 }

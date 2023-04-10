@@ -10,14 +10,8 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/funwithbots/go-bricklink-api/internal"
-	"github.com/funwithbots/go-bricklink-api/oauth"
+	"github.com/funwithbots/go-bricklink-api/internal/oauth"
 )
-
-// type Bricklink interface {
-// 	NewRequestWithContext(ctx context.Context, method, path string, body io.Reader) (*http.Request, error)
-// 	NewRequest(method, path string, body io.Reader) (*http.Request, error)
-// 	// 	Reference() ReferenceAPI
-// }
 
 const (
 	oAuthSignatureMethod = "HMAC-SHA1"

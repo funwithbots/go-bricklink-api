@@ -140,7 +140,3 @@ type OrderUpdateRequest struct {
 	Field string `json:"field`
 	Value string `json:"value"`
 }
-
-func (Order) GetOrderFeedback(orderID int) ([]interface{}, error) {
-	return nil, util.ErrNotImplemented
-}
