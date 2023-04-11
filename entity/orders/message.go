@@ -15,14 +15,14 @@ type Message struct {
 	DateSent time.Time `json:"dateSent"`
 }
 
-func (o *Orders) GetOrderMessages(id int) ([]Message, error) {
-	return nil, util.ErrNotImplemented
-}
-
 func (m *Message) PrimaryKey() int {
 	return int(m.DateSent.Unix())
 }
 
 func (m *Message) Label() entity.Label {
 	return entity.LabelMessage
+}
+
+func (o *Orders) GetOrderMessages(id int) ([]Message, error) {
+	return nil, util.ErrNotImplemented
 }

@@ -48,7 +48,7 @@ func (it Item) Label() entity.Label {
 // GetItem implements the Get store inventory endpoint.
 // Bricklink calls this "Get Inventory" but it's really just a get of an item.
 // https://www.bricklink.com/v3/api.page?page=get-inventory
-func GetItem(id string) (*Item, error) {
+func (inv *Inventory) GetItem(id string) (*Item, error) {
 	return nil, util.ErrNotImplemented
 }
 
