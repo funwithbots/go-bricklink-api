@@ -1,4 +1,4 @@
-package order
+package orders
 
 import (
 	"github.com/funwithbots/go-bricklink-api/entity"
@@ -31,7 +31,7 @@ func (it Item) Label() entity.Label {
 	return entity.LabelOrderItem
 }
 
-func (Order) GetOrderItems(orderID int) ([]Item, error) {
+func (o *Orders) GetOrderItems(orderID int) ([]Item, error) {
 	// TODO implement me
 	return nil, util.ErrNotImplemented
 }

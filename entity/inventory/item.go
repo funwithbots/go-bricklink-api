@@ -45,25 +45,32 @@ func (it Item) Label() entity.Label {
 	return entity.LabelInventoryItem
 }
 
-// GetInventoryItem implements the Get store inventory endpoint.
+// GetItem implements the Get store inventory endpoint.
+// Bricklink calls this "Get Inventory" but it's really just a get of an item.
 // https://www.bricklink.com/v3/api.page?page=get-inventory
-func GetInventoryItem(id string) (*Item, error) {
+func GetItem(id string) (*Item, error) {
 	return nil, util.ErrNotImplemented
 }
 
-// CreateItem
-func (it *Item) CreateItem() (*Item, error) {
+// CreateItem creates a single item in the inventory.
+// Bricklink calls this "Create Inventory" but it's really just a create of an item.
+func (inv *Inventory) CreateItem(item Item) (*Item, error) {
 	return nil, util.ErrNotImplemented
 }
 
-func (it *Item) UpdateItem() (*Item, error) {
+func (inv *Inventory) UpdateItem(Item) (*Item, error) {
 	return nil, util.ErrNotImplemented
 }
 
-func CreateInventories([]Item) error {
+// CreateItems creates multiple items in a single request.
+// Bricklink calls this "Create Inventories" but it's really just a bulk create of items.
+// Item IDs are not returned.
+func (inv *Inventory) CreateItems([]Item) error {
 	return util.ErrNotImplemented
 }
 
-func DeleteInventory(id int) error {
+// DeleteItem deletes an item from the inventory.
+// Bricklink calls this "Delete Inventory" but it's really just a delete of an item.
+func (inv *Inventory) DeleteItem(id int) error {
 	return util.ErrNotImplemented
 }

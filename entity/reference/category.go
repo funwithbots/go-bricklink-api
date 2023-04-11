@@ -21,13 +21,13 @@ func (c *Category) Label() entity.Label {
 }
 
 // GetCategories returns a list of categories.
-func GetCategories() ([]Category, error) {
+func (r *Reference) GetCategories() ([]Category, error) {
 	// TODO implement me
 	return nil, util.ErrNotImplemented
 }
 
 // GetCategory returns the details of a specific category.
-func GetCategory(id int) (Category, error) {
+func (r *Reference) GetCategory(id int) (Category, error) {
 	// TODO implement me
 	return Category{}, util.ErrNotImplemented
 }

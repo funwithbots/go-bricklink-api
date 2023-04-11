@@ -1,9 +1,20 @@
 package reference
 
 import (
+	"fmt"
+	"strings"
+
 	"golang.org/x/exp/slices"
 
 	"github.com/funwithbots/go-bricklink-api/util"
+)
+
+type queryTarget int
+
+const (
+	queryTargetSupersets queryTarget = iota
+	queryTargetSubsets
+	queryTargetPriceGuide
 )
 
 type RequestOption func(opts *requestOptions)
@@ -16,19 +27,78 @@ type requestOptions struct {
 	instruction   *bool
 	breakMinifigs *bool
 	breakSubsets  *bool
-	guideType     string
-	condition     string // new_or_used.
-	countryCode   string
-	region        string
-	currencyCode  string
-	vat           string // Y N O (Yes, No, nOrway)
+	guideType     *string
+	condition     *string // new_or_used.
+	countryCode   *string
+	region        *string
+	currencyCode  *string
+	vat           *string // Y N O (Yes, No, nOrway)
 }
 
-// ToQueryString converts the request to a query string.
+// toQuery converts the request to a query string.
 // Each field is converted to a query string parameter.
-func (ro *requestOptions) ToQueryString() string {
-	// TODO implement me
-	return "not implemented"
+func (ro *requestOptions) toQuery(target queryTarget) (string, error) {
+	var params []string
+	switch target {
+	case queryTargetSupersets:
+		if ro.colorID != nil {
+			params = append(params, fmt.Sprintf("color_id=%d", *ro.colorID))
+		}
+	case queryTargetSubsets:
+		if ro.colorID != nil {
+			if ro.itemType != util.ItemTypePart.String() {
+				return "", fmt.Errorf("color_id is only valid for parts")
+			}
+			params = append(params, fmt.Sprintf("color_id=%d", *ro.colorID))
+		}
+		if ro.box != nil {
+			params = append(params, fmt.Sprintf("box=%s", util.YesOrNo(*ro.box)))
+		}
+		if ro.instruction != nil {
+			params = append(params, fmt.Sprintf("instruction=%s", util.YesOrNo(*ro.instruction)))
+		}
+		if ro.breakMinifigs != nil {
+			params = append(params, fmt.Sprintf("break_minifigs=%s", util.YesOrNo(*ro.breakMinifigs)))
+		}
+		if ro.breakSubsets != nil {
+			params = append(params, fmt.Sprintf("break_subsets=%s", util.YesOrNo(*ro.breakSubsets)))
+		}
+	case queryTargetPriceGuide:
+		if ro.colorID != nil {
+			if ro.itemType != util.ItemTypePart.String() {
+				return "", fmt.Errorf("color_id is only valid for parts")
+			}
+			params = append(params, fmt.Sprintf("color_id=%d", *ro.colorID))
+		}
+		if (ro.countryCode != nil) != (ro.region != nil) {
+			return "", fmt.Errorf("country_code and region must be set together")
+		}
+
+		if ro.guideType != nil {
+			params = append(params, fmt.Sprintf("guide_type=%s", *ro.guideType))
+		}
+		if ro.condition != nil {
+			params = append(params, fmt.Sprintf("instruction=%s", *ro.condition))
+		}
+		if ro.countryCode != nil {
+			params = append(params, fmt.Sprintf("country_code=%s", *ro.countryCode))
+			params = append(params, fmt.Sprintf("region=%s", *ro.region))
+		}
+		if ro.currencyCode != nil {
+			params = append(params, fmt.Sprintf("currency_code=%s", *ro.currencyCode))
+		}
+		if ro.vat != nil {
+			params = append(params, fmt.Sprintf("vat=%s", *ro.vat))
+		}
+		if len(params) > 0 {
+			return strings.Join(params, "&"), nil
+		}
+	}
+
+	if len(params) > 0 {
+		return strings.Join(params, "&"), nil
+	}
+	return "", nil
 }
 
 func (ro *requestOptions) withOpts(opts []RequestOption) {
@@ -92,7 +162,7 @@ func WithGuideType(guideType string) RequestOption {
 		return nil
 	}
 	return func(opts *requestOptions) {
-		opts.guideType = guideType
+		opts.guideType = &guideType
 	}
 }
 
@@ -102,28 +172,28 @@ func WithCondition(condition string) RequestOption {
 		return nil
 	}
 	return func(opts *requestOptions) {
-		opts.condition = condition
+		opts.condition = &condition
 	}
 }
 
 // WithCountryCode sets the country code filter.
 func WithCountryCode(countryCode string) RequestOption {
 	return func(opts *requestOptions) {
-		opts.countryCode = countryCode
+		opts.countryCode = &countryCode
 	}
 }
 
 // WithRegion sets the region filter.
 func WithRegion(region string) RequestOption {
 	return func(opts *requestOptions) {
-		opts.region = region
+		opts.region = &region
 	}
 }
 
 // WithCurrencyCode sets the currency code filter.
 func WithCurrencyCode(currencyCode string) RequestOption {
 	return func(opts *requestOptions) {
-		opts.currencyCode = currencyCode
+		opts.currencyCode = &currencyCode
 	}
 }
 
@@ -133,6 +203,6 @@ func WithVAT(vat string) RequestOption {
 		return nil
 	}
 	return func(opts *requestOptions) {
-		opts.vat = vat
+		opts.vat = &vat
 	}
 }

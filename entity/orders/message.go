@@ -1,4 +1,4 @@
-package order
+package orders
 
 import (
 	"time"
@@ -15,7 +15,7 @@ type Message struct {
 	DateSent time.Time `json:"dateSent"`
 }
 
-func (o *Order) GetOrderMessages(id int) ([]Message, error) {
+func (o *Orders) GetOrderMessages(id int) ([]Message, error) {
 	return nil, util.ErrNotImplemented
 }
 

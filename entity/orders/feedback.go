@@ -1,4 +1,4 @@
-package order
+package orders
 
 import (
 	"time"
@@ -35,28 +35,28 @@ func (f *Feedback) Label() entity.Label {
 	return entity.LabelFeedback
 }
 
-// PostFeedback posts feedback for an order.
+// PostFeedback posts feedback for an orders.
 // OrderID, Rating, and Comment must be set
-func (f *Feedback) PostFeedback() (*Feedback, error) {
+func (o *Orders) PostFeedback() (*Feedback, error) {
 	return nil, util.ErrNotImplemented
 }
 
 // ReplyFeedback replies to feedback.
 // Reply must be set.
-func (f *Feedback) ReplyFeedback() error {
+func (o *Orders) ReplyFeedback() error {
 	return util.ErrNotImplemented
 }
 
 // GetFeedbackList returns a list of feedback for the given direction.
-func GetFeedbackList(dir FeedbackDirection) ([]Feedback, error) {
+func (o *Orders) GetFeedbackList(dir FeedbackDirection) ([]Feedback, error) {
 	return nil, util.ErrNotImplemented
 }
 
 // GetFeedback returns the feedback for the given feedback ID.
-func GetFeedback(id int) (*Feedback, error) {
+func (o *Orders) GetFeedback(id int) (*Feedback, error) {
 	return nil, util.ErrNotImplemented
 }
 
-func GetOrderFeedback(orderID int) ([]Feedback, error) {
+func (o *Orders) GetOrderFeedback(orderID int) ([]Feedback, error) {
 	return nil, util.ErrNotImplemented
 }

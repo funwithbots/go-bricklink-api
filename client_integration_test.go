@@ -1,6 +1,8 @@
 package go_bricklink_api_test
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -8,6 +10,7 @@ import (
 
 	bricklink "github.com/funwithbots/go-bricklink-api"
 	"github.com/funwithbots/go-bricklink-api/entity/reference"
+	"github.com/funwithbots/go-bricklink-api/internal"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
@@ -30,15 +33,15 @@ func TestReference(t *testing.T) {
 	}
 
 	// comment this block to test against the real API
-	// server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	w.WriteHeader(http.StatusOK)
-	// 	w.Write([]byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`))
-	// }))
-	// client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))
-	// if err != nil {
-	// 	t.Errorf("error creating client: %v", err)
-	// }
-	// bricklink.WithClient(client)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`))
+	}))
+	client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))
+	if err != nil {
+		t.Errorf("error creating client: %v", err)
+	}
+	bricklink.WithClient(client)
 	// end block
 
 	bricklink, err := bricklink.New(opts...)
@@ -61,7 +64,7 @@ func TestReference(t *testing.T) {
 			assert.Equal(t, tt.want, item.ID)
 			assert.Equal(t, strings.ToUpper(tt.itemType.String()), item.ItemType)
 
-			subsets, err := ref.GetSubset(opts...)
+			subsets, err := ref.GetSubsets(opts...)
 			if err != nil {
 				assert.FailNowf(t, "error getting catalog item:", "` %s", err.Error())
 			}

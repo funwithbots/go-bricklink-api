@@ -1,10 +1,14 @@
 package reference
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/funwithbots/go-bricklink-api/entity"
-	"github.com/funwithbots/go-bricklink-api/util"
+	"github.com/funwithbots/go-bricklink-api/internal"
 )
 
 type PriceGuide struct {
@@ -41,6 +45,41 @@ func (pg *PriceGuide) Label() entity.Label {
 	return entity.LabelPriceGuide
 }
 
-func GetPriceGuide(options ...RequestOption) (PriceGuide, error) {
-	return PriceGuide{}, util.ErrNotImplemented
+func (r *Reference) GetPriceGuide(options ...RequestOption) (*PriceGuide, error) {
+	var opts = requestOptions{}
+	opts.withOpts(options)
+	if opts.itemNo == "" {
+		return nil, errors.New("id is required")
+	}
+	if opts.itemType == "" {
+		return nil, errors.New("type is required")
+	}
+	query, err := opts.toQuery(queryTargetPriceGuide)
+	if err != nil {
+		return nil, err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	defer cancel()
+
+	req, err := r.bl.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		fmt.Sprintf(pathGetPriceGuide, opts.itemType, opts.itemNo, query),
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := r.bl.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var pg PriceGuide
+	if err := internal.Parse(res.Body, &pg); err != nil {
+		return nil, err
+	}
+
+	return &pg, nil
 }

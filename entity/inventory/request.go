@@ -13,9 +13,9 @@ type requestOptions struct {
 	ColorID    []int    // color_id
 }
 
-// ToQueryString converts the request to a query string.
+// toQuery converts the request to a query string.
 // Each field is converted to a query string parameter.
-func (ro *requestOptions) ToQueryString() string {
+func (ro *requestOptions) toQuery() string {
 	// TODO implement me
 	return "not implemented"
 }

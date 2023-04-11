@@ -1,4 +1,4 @@
-package order
+package orders
 
 import (
 	"time"
@@ -88,27 +88,27 @@ func (o Order) Label() entity.Label {
 
 // GetOrders retrieves a list of orders you received or placed.
 // https://www.bricklink.com/v3/api.page?page=get-orders
-func GetOrders(...RequestOption) ([]Order, error) {
+func (o *Orders) GetOrders(...RequestOption) ([]Order, error) {
 	// TODO implement me
 	return nil, util.ErrNotImplemented
 }
 
-// GetOrder retrieves the details of a specific order.
+// GetOrder retrieves the details of a specific orders.
 // https://www.bricklink.com/v3/api.page?page=get-order
-func GetOrder(orderID int) (Order, error) {
+func (o *Orders) GetOrder(orderID int) (Order, error) {
 	// TODO implement me
 	return Order{}, util.ErrNotImplemented
 }
 
-// UpdateOrder updates properties of a specific order
+// UpdateOrder updates properties of a specific orders
 // https://www.bricklink.com/v3/api.page?page=update-order
-func (o *Order) UpdateOrder() error {
+func (o *Orders) UpdateOrder() error {
 	return util.ErrNotImplemented
 }
 
-// UpdateStatus updates the order status for id.
+// UpdateStatus updates the orders status for id.
 // https://www.bricklink.com/v3/api.page?page=update-order-status
-func (o *Order) UpdateStatus(...RequestOption) error {
+func (o *Orders) UpdateStatus(...RequestOption) error {
 	// request payload
 	// {
 	// 	"field" : "status",
@@ -118,9 +118,9 @@ func (o *Order) UpdateStatus(...RequestOption) error {
 	return util.ErrNotImplemented
 }
 
-// UpdatePaymentStatus updates the payment for an order
+// UpdatePaymentStatus updates the payment for an orders
 // https://www.bricklink.com/v3/api.page?page=update-payment-status
-func (o *Order) UpdatePaymentStatus(id int, status string) error {
+func (o *Orders) UpdatePaymentStatus(id int, status string) error {
 	// request payload
 	// {
 	// 	"field" : "payment_status",
@@ -129,14 +129,14 @@ func (o *Order) UpdatePaymentStatus(id int, status string) error {
 	return util.ErrNotImplemented
 }
 
-// SendDriveThrough issues a drive through message to the buyer for the order
+// SendDriveThrough issues a drive through message to the buyer for the orders
 // https://www.bricklink.com/v3/api.page?page=send-drive-thru
-func (Order) SendDriveThrough(id int) error {
+func (o *Orders) SendDriveThrough(id int) error {
 	return util.ErrNotImplemented
 }
 
-// OrderUpdateRequest provides the body for order and payment status updates
-type OrderUpdateRequest struct {
+// orderUpdateRequest provides the body for orders and payment status updates
+type orderUpdateRequest struct {
 	Field string `json:"field`
 	Value string `json:"value"`
 }

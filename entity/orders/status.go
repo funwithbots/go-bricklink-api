@@ -1,7 +1,7 @@
-package order
+package orders
 
-// Status represents the status of an order.
-// The lifetime of a transaction is defined by its status. The below outlines each status an order can have:
+// Status represents the status of an orders.
+// The lifetime of a transaction is defined by its status. The below outlines each status an orders can have:
 // Statuses can be set by the seller, the buyer or by the system.
 // N?? statuses prevent buyers from placing additional orders until the issue is resolved.
 // Orders in pending, updated, processing, or ready status can be added to by the buyer.

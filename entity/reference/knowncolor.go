@@ -18,7 +18,7 @@ type KnownColors struct {
 	KnownColors []KnownColor `json:"known_colors"`
 }
 
-func Get(options ...RequestOption) (KnownColors, error) {
+func (r *Reference) GetKnownColors(options ...RequestOption) (KnownColors, error) {
 	// TODO implement me
 	return KnownColors{}, util.ErrNotImplemented
 }

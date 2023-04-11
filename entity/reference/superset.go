@@ -41,10 +41,20 @@ func (r *Reference) GetSupersets(options ...RequestOption) (Superset, error) {
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
 	}
+	query, err := opts.toQuery(queryTargetSupersets)
+	if err != nil {
+		return nil, err
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetSuperset, opts.itemType, opts.itemNo), nil)
+	req, err := r.bl.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		fmt.Sprintf(pathGetSuperset, opts.itemType, opts.itemNo, query),
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}

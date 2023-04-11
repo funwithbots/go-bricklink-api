@@ -1,4 +1,4 @@
-package order
+package orders
 
 import (
 	"hash/fnv"
@@ -21,12 +21,6 @@ type MemberRating struct {
 	Rating []Feedback `json:"rating"`
 }
 
-// GetMemberRatings returns the details feedback ratings for a specific member.
-func GetMemberRatings(memberID string) ([]MemberRating, error) {
-	// TODO implement me
-	return nil, util.ErrNotImplemented
-}
-
 func (m *Member) PrimaryKey() int {
 	hash := fnv.New32a()
 	hash.Write([]byte(m.UserName))
@@ -37,38 +31,44 @@ func (m *Member) Label() entity.Label {
 	return entity.LabelMember
 }
 
+// GetMemberRatings returns the details feedback ratings for a specific member.
+func (o *Orders) GetMemberRatings(memberID string) ([]MemberRating, error) {
+	// TODO implement me
+	return nil, util.ErrNotImplemented
+}
+
 // GetNote returns the note for a specific member.
-func (m *Member) GetNote() (*Note, error) {
+func (o *Orders) GetNote() (*Note, error) {
 	// TODO implement me
 	return nil, util.ErrNotImplemented
 }
 
 // UpsertNote creates or updates a note for the member.
-func (m *Member) UpsertNote(note string) (*Note, error) {
+func (o *Orders) UpsertNote(note Note) (*Note, error) {
 	// TODO implement me
-	if note == "" {
+	if note.UserName == "" {
 		return nil, util.ErrInvalidArgument
 	}
-	if m.Note.ID == 0 {
-		return m.postNote(note)
+	if note.ID == 0 {
+		return o.postNote(note)
 	}
-	return m.updateNote(note)
+	return o.updateNote(note)
 }
 
 // postNote creates a note for the member.
-func (m *Member) postNote(note string) (*Note, error) {
+func (o *Orders) postNote(note Note) (*Note, error) {
 	// TODO implement me
 	return nil, util.ErrNotImplemented
 }
 
 // updateNote updates the member note.
-func (m *Member) updateNote(note string) (*Note, error) {
+func (o *Orders) updateNote(note Note) (*Note, error) {
 	// TODO implement me
 	return nil, util.ErrNotImplemented
 }
 
 // DeleteNote deletes the member note.
-func (m *Member) DeleteNote() error {
+func (o *Orders) DeleteNote() error {
 	// TODO implement me
 	return util.ErrNotImplemented
 }

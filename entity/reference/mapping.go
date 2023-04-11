@@ -26,13 +26,13 @@ func (m Mapping) Label() entity.Label {
 }
 
 // GetElementID returns the element ID for a specific item/part/type combination.
-func GetElementID(item Item, colorID int) (string, error) {
+func (r *Reference) GetElementID(item Item, colorID int) (string, error) {
 	// TODO implement me
 	return "", util.ErrNotImplemented
 }
 
 // GetMapping returns the mapping resource for an Element ID.
-func GetMapping(elementID string) (Mapping, error) {
+func (r *Reference) GetMapping(elementID string) (Mapping, error) {
 	// TODO implement me
 	return Mapping{}, util.ErrNotImplemented
 }

@@ -23,11 +23,11 @@ func (c Color) Label() entity.Label {
 }
 
 // GetColors returns a list of colors.
-func GetColors() ([]Color, error) {
+func (r *Reference) GetColors() ([]Color, error) {
 	return nil, util.ErrNotImplemented
 }
 
 // GetColor returns a color by color ID.
-func GetColor(colorID int) (Color, error) {
+func (r *Reference) GetColor(colorID int) (Color, error) {
 	return Color{}, util.ErrNotImplemented
 }

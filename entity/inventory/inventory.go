@@ -1,21 +1,27 @@
 package inventory
 
 import (
-	"github.com/funwithbots/go-bricklink-api/entity"
+	bricklink "github.com/funwithbots/go-bricklink-api"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
-type Inventory []Item
+const (
+	guideTypeSold  = "sold"
+	guideTypeStock = "stock"
 
-// PrimaryKey isn't relevant for this entity.
-func (inv *Inventory) PrimaryKey() int {
-	return 0
+	pathGetOrders = "/orders/%s/%s"
+)
+
+type Inventory struct {
+	bl bricklink.Bricklink
 }
 
-func (inv *Inventory) Label() entity.Label {
-	return entity.LabelInventory
+func New(bl bricklink.Bricklink) *Inventory {
+	return &Inventory{
+		bl: bl,
+	}
 }
 
-func GetInventory(...RequestOption) (Inventory, error) {
+func (inv *Inventory) GetInventory(...RequestOption) ([]Item, error) {
 	return nil, util.ErrNotImplemented
 }

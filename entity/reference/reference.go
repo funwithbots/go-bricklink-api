@@ -22,9 +22,9 @@ const (
 
 	pathGetItem        = "/items/%s/%s"
 	pathGetItemImage   = "/items/%s/%s/images/%s"
-	pathGetSuperset    = "/items/%s/%s/supersets"
-	pathGetSubset      = "/items/%s/%s/subsets"
-	pathGetPriceGuide  = "/items/%s/%s/price/%s"
+	pathGetSuperset    = "/items/%s/%s/supersets?%s"
+	pathGetSubset      = "/items/%s/%s/subsets?%s"
+	pathGetPriceGuide  = "/items/%s/%s/price?%s"
 	pathGetKnownColors = "/items/%s/%s/colors"
 )
 

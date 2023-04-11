@@ -10,7 +10,7 @@ import (
 	"github.com/funwithbots/go-bricklink-api/internal"
 )
 
-type Subset []SubsetItem
+type Subsets []SubsetItem
 
 type SubsetItem struct {
 	MatchNo int `json:"match_no"` // 0 value are unique parts with no alternates or counterparts
@@ -25,16 +25,16 @@ type SubsetItem struct {
 }
 
 // PrimaryKey isn't meaningful for this entity.
-func (sub *Subset) PrimaryKey() int {
+func (sub *Subsets) PrimaryKey() int {
 	return 0
 }
 
-func (sub *Subset) Label() entity.Label {
+func (sub *Subsets) Label() entity.Label {
 	return entity.LabelSubset
 }
 
 // GetSubset returns a list of items that make up the item.
-func (r *Reference) GetSubset(options ...RequestOption) (Subset, error) {
+func (r *Reference) GetSubsets(options ...RequestOption) (Subsets, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
 	if opts.itemNo == "" {
@@ -43,10 +43,14 @@ func (r *Reference) GetSubset(options ...RequestOption) (Subset, error) {
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
 	}
+	query, err := opts.toQuery(queryTargetSubsets)
+	if err != nil {
+		return nil, err
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetSubset, opts.itemType, opts.itemNo), nil)
+	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetSubset, opts.itemType, opts.itemNo, query), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +65,7 @@ func (r *Reference) GetSubset(options ...RequestOption) (Subset, error) {
 		return nil, err
 	}
 
-	subset := items
+	subsets := items
 
-	return subset, nil
+	return subsets, nil
 }
