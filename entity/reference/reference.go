@@ -21,11 +21,17 @@ const (
 	guideTypeStock = "stock"
 
 	pathGetItem        = "/items/%s/%s"
-	pathGetItemImage   = "/items/%s/%s/images/%s"
+	pathGetItemImage   = "/items/%s/%s/images/%d"
 	pathGetSuperset    = "/items/%s/%s/supersets?%s"
 	pathGetSubset      = "/items/%s/%s/subsets?%s"
 	pathGetPriceGuide  = "/items/%s/%s/price?%s"
 	pathGetKnownColors = "/items/%s/%s/colors"
+	pathGetCategories  = "/categories"
+	pathGetCategory    = "/categories/%d"
+	pathGetColors      = "/colors"
+	pathGetColor       = "/colors/%d"
+	pathGetItemMapping = "/item_mapping/%d"
+	pathGetElementID   = "/item_mapping/%s/%s?%s"
 )
 
 type Reference struct {

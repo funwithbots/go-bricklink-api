@@ -1,10 +1,14 @@
 package reference
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"hash/fnv"
+	"net/http"
 
 	"github.com/funwithbots/go-bricklink-api/entity"
-	"github.com/funwithbots/go-bricklink-api/util"
+	"github.com/funwithbots/go-bricklink-api/internal"
 )
 
 // Mapping maps a unique identifier to a Bricklink item/part/type combination.
@@ -26,13 +30,59 @@ func (m Mapping) Label() entity.Label {
 }
 
 // GetElementID returns the element ID for a specific item/part/type combination.
-func (r *Reference) GetElementID(item Item, colorID int) (string, error) {
-	// TODO implement me
-	return "", util.ErrNotImplemented
+func (r *Reference) GetElementID(options ...RequestOption) (*Mapping, error) {
+	var opts = requestOptions{}
+	opts.withOpts(options)
+	if opts.itemNo == "" {
+		return nil, errors.New("id is required")
+	}
+	if opts.itemType == "" {
+		return nil, errors.New("type is required")
+	}
+	query, err := opts.toQuery(queryTargetElementID)
+	if err != nil {
+		return nil, err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	defer cancel()
+
+	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetElementID, opts.itemType, opts.itemNo, query), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := r.bl.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var im Mapping
+	if err := internal.Parse(res.Body, &im); err != nil {
+		return nil, err
+	}
+
+	return &im, nil
 }
 
-// GetMapping returns the mapping resource for an Element ID.
-func (r *Reference) GetMapping(elementID string) (Mapping, error) {
-	// TODO implement me
-	return Mapping{}, util.ErrNotImplemented
+// GetItemMapping returns the mapping resource for an Element ID.
+func (r *Reference) GetItemMapping(elementID string) (*Mapping, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	defer cancel()
+
+	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItemMapping, elementID), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := r.bl.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var im Mapping
+	if err := internal.Parse(res.Body, &im); err != nil {
+		return nil, err
+	}
+
+	return &im, nil
 }

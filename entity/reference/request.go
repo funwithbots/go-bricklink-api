@@ -15,6 +15,7 @@ const (
 	queryTargetSupersets queryTarget = iota
 	queryTargetSubsets
 	queryTargetPriceGuide
+	queryTargetElementID
 )
 
 type RequestOption func(opts *requestOptions)
@@ -40,7 +41,7 @@ type requestOptions struct {
 func (ro *requestOptions) toQuery(target queryTarget) (string, error) {
 	var params []string
 	switch target {
-	case queryTargetSupersets:
+	case queryTargetSupersets, queryTargetElementID:
 		if ro.colorID != nil {
 			params = append(params, fmt.Sprintf("color_id=%d", *ro.colorID))
 		}
