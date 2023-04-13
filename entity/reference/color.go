@@ -36,6 +36,7 @@ func (r *Reference) GetColors() ([]Color, error) {
 		http.MethodGet,
 		pathGetColors,
 		nil,
+		nil,
 	)
 	if err != nil {
 		return nil, err
@@ -63,6 +64,7 @@ func (r *Reference) GetColor(colorID int) (*Color, error) {
 		ctx,
 		http.MethodGet,
 		fmt.Sprintf(pathGetColor, colorID),
+		nil,
 		nil,
 	)
 	if err != nil {

@@ -34,6 +34,7 @@ func (r *Reference) GetCategories() ([]Category, error) {
 		http.MethodGet,
 		pathGetCategories,
 		nil,
+		nil,
 	)
 	if err != nil {
 		return nil, err
@@ -61,6 +62,7 @@ func (r *Reference) GetCategory(id int) (*Category, error) {
 		ctx,
 		http.MethodGet,
 		fmt.Sprintf(pathGetCategory, id),
+		nil,
 		nil,
 	)
 	if err != nil {

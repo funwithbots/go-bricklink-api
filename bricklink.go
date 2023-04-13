@@ -3,8 +3,10 @@ package go_bricklink_api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -149,14 +151,19 @@ func New(opts ...BricklinkOption) (*Bricklink, error) {
 
 // NewRequest creates a new HTTP request with auth headers and the specified method and path.
 // The body is optional. If present, it should be sent as an urlencoded strings.NewReader(body).
-func (bl *Bricklink) NewRequest(method string, path string, body io.Reader) (*http.Request, error) {
+func (bl *Bricklink) NewRequest(method string, path string, params map[string]string, body io.Reader) (*http.Request, error) {
 	url := bl.baseURL + path
 
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
-	authHeader := bl.auth(method, url, req)
+	if query := fromParams(params); query != "" {
+		req.URL.RawQuery = query
+	}
+
+	authHeader := bl.auth(method, url, params)
+	authHeader = authHeader[:5] + " realm=\"\"," + authHeader[5:]
 	req.Header.Set("Authorization", authHeader)
 
 	return req, nil
@@ -164,21 +171,33 @@ func (bl *Bricklink) NewRequest(method string, path string, body io.Reader) (*ht
 
 // NewRequestWithContext creates a new HTTP request with auth headers and the specified method and path.
 // The body is optional. If present, it should be sent as an urlencoded strings.NewReader(body).
-func (bl *Bricklink) NewRequestWithContext(ctx context.Context, method string, path string, body io.Reader) (*http.Request, error) {
+func (bl *Bricklink) NewRequestWithContext(ctx context.Context, method, path string, params map[string]string, body io.Reader) (*http.Request, error) {
 	url := bl.baseURL + path
+
 	req, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
 		return nil, err
 	}
-	authHeader := bl.auth(method, url, req)
+	if query := fromParams(params); query != "" {
+		req.URL.RawQuery = query
+	}
+
+	authHeader := bl.auth(method, url, params)
 	authHeader = authHeader[:5] + " realm=\"\"," + authHeader[5:]
 	req.Header.Set("Authorization", authHeader)
 
 	return req, nil
 }
 
-func (bl *Bricklink) auth(method, url string, req *http.Request) string {
-	return bl.oAuth.BuildOAuth1Header(method, url, map[string]string{})
-	//	h := hmac.New(sha1.New, []byte(c.ConsumerKey+c.oAuthToken+req.URL.String()))
-	// 	req.Header.Add("oauth_signature", string(h.Sum(nil)))
+func (bl *Bricklink) auth(method, url string, params map[string]string) string {
+	return bl.oAuth.BuildOAuth1Header(method, url, params)
+}
+
+func fromParams(params map[string]string) string {
+	query := make([]string, 0, len(params))
+	for k, v := range params {
+		query = append(query, fmt.Sprintf("%s=%s", k, v))
+	}
+
+	return strings.Join(query, "&")
 }

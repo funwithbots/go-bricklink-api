@@ -46,7 +46,7 @@ func (r *Reference) GetElementID(options ...RequestOption) (*Mapping, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetElementID, opts.itemType, opts.itemNo, query), nil)
+	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetElementID, opts.itemType, opts.itemNo), query, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (r *Reference) GetItemMapping(elementID string) (*Mapping, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItemMapping, elementID), nil)
+	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItemMapping, elementID), nil, nil)
 	if err != nil {
 		return nil, err
 	}

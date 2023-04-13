@@ -52,7 +52,8 @@ func (r *Reference) GetSupersets(options ...RequestOption) (Superset, error) {
 	req, err := r.bl.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		fmt.Sprintf(pathGetSuperset, opts.itemType, opts.itemNo, query),
+		fmt.Sprintf(pathGetSuperset, opts.itemType, opts.itemNo),
+		query,
 		nil,
 	)
 	if err != nil {

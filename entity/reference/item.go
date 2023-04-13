@@ -54,7 +54,7 @@ func (r *Reference) GetCatalogItem(options ...RequestOption) (*Item, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItem, opts.itemType, opts.itemNo), nil)
+	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItem, opts.itemType, opts.itemNo), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,13 @@ func (r *Reference) GetItemImage(options ...RequestOption) (*Item, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItemImage, opts.itemType, opts.itemNo, opts.colorID), nil)
+	req, err := r.bl.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		fmt.Sprintf(pathGetItemImage, opts.itemType, opts.itemNo, opts.colorID),
+		nil,
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}

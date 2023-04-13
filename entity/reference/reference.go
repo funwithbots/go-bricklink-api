@@ -17,21 +17,30 @@ var ItemTypes = map[string]string{
 }
 
 const (
-	guideTypeSold  = "sold"
-	guideTypeStock = "stock"
+	GuideTypeSold  = "sold"
+	GuideTypeStock = "stock"
+
+	PGRegionAsia         = "asia"
+	PGRegionEurope       = "europe"
+	PGRegionAfrica       = "africa"
+	PGRegionNorthAmerica = "north_america"
+	PGRegionSouthAmerica = "south_america"
+	PGRegionOceania      = "oceania"
+	PGRegionMiddleEast   = "middle_east"
+	PGRegionEU           = "eu"
 
 	pathGetItem        = "/items/%s/%s"
 	pathGetItemImage   = "/items/%s/%s/images/%d"
-	pathGetSuperset    = "/items/%s/%s/supersets?%s"
-	pathGetSubset      = "/items/%s/%s/subsets?%s"
-	pathGetPriceGuide  = "/items/%s/%s/price?%s"
+	pathGetSuperset    = "/items/%s/%s/supersets"
+	pathGetSubset      = "/items/%s/%s/subsets"
+	pathGetPriceGuide  = "/items/%s/%s/price"
 	pathGetKnownColors = "/items/%s/%s/colors"
 	pathGetCategories  = "/categories"
 	pathGetCategory    = "/categories/%d"
 	pathGetColors      = "/colors"
 	pathGetColor       = "/colors/%d"
 	pathGetItemMapping = "/item_mapping/%d"
-	pathGetElementID   = "/item_mapping/%s/%s?%s"
+	pathGetElementID   = "/item_mapping/%s/%s"
 )
 
 type Reference struct {

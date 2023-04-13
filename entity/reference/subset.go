@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 
 	"github.com/funwithbots/go-bricklink-api/entity"
@@ -50,7 +52,7 @@ func (r *Reference) GetSubsets(options ...RequestOption) (Subsets, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetSubset, opts.itemType, opts.itemNo, query), nil)
+	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetSubset, opts.itemType, opts.itemNo), query, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -62,6 +64,9 @@ func (r *Reference) GetSubsets(options ...RequestOption) (Subsets, error) {
 
 	var items []SubsetItem
 	if err := internal.Parse(res.Body, &items); err != nil {
+		buf, _ := io.ReadAll(res.Body)
+		log.Printf("\nResponse: ---'%s'---\nobject\n%+v\n", buf, res)
+
 		return nil, err
 	}
 

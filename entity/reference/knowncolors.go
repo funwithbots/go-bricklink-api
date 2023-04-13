@@ -32,6 +32,7 @@ func (r *Reference) GetKnownColors(options ...RequestOption) ([]KnownColor, erro
 		http.MethodGet,
 		fmt.Sprintf(pathGetKnownColors, opts.itemType, opts.itemNo),
 		nil,
+		nil,
 	)
 	if err != nil {
 		return nil, err

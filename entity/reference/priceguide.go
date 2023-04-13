@@ -64,7 +64,8 @@ func (r *Reference) GetPriceGuide(options ...RequestOption) (*PriceGuide, error)
 	req, err := r.bl.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		fmt.Sprintf(pathGetPriceGuide, opts.itemType, opts.itemNo, query),
+		fmt.Sprintf(pathGetPriceGuide, opts.itemType, opts.itemNo),
+		query,
 		nil,
 	)
 	if err != nil {
