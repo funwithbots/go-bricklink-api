@@ -18,7 +18,7 @@ func (r *Reference) GetKnownColors(options ...RequestOption) ([]KnownColor, erro
 	var opts = requestOptions{}
 	opts.withOpts(options)
 	if opts.itemNo == "" {
-		return nil, errors.New("id is required")
+		return nil, errors.New("item no is required")
 	}
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")

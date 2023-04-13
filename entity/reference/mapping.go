@@ -9,13 +9,13 @@ import (
 
 	"github.com/funwithbots/go-bricklink-api/entity"
 	"github.com/funwithbots/go-bricklink-api/internal"
+	"github.com/funwithbots/go-bricklink-api/util"
 )
 
 // Mapping maps a unique identifier to a Bricklink item/part/type combination.
 type Mapping struct {
 	Item      Item   `json:"item"`
 	ColorID   int    `json:"color_id"`
-	ColorName string `json:"color_name"`
 	ElementID string `json:"element_id"`
 }
 
@@ -30,14 +30,14 @@ func (m Mapping) Label() entity.Label {
 }
 
 // GetElementID returns the element ID for a specific item/part/type combination.
-func (r *Reference) GetElementID(options ...RequestOption) (*Mapping, error) {
+func (r *Reference) GetElementID(options ...RequestOption) ([]Mapping, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
-	if opts.itemNo == "" {
-		return nil, errors.New("id is required")
+	if opts.itemType != util.ItemTypePart.String() {
+		return nil, errors.New("item type must be part")
 	}
-	if opts.itemType == "" {
-		return nil, errors.New("type is required")
+	if opts.itemNo == "" {
+		return nil, errors.New("item no is required")
 	}
 	query, err := opts.toQuery(queryTargetElementID)
 	if err != nil {
@@ -56,16 +56,16 @@ func (r *Reference) GetElementID(options ...RequestOption) (*Mapping, error) {
 		return nil, err
 	}
 
-	var im Mapping
+	var im []Mapping
 	if err := internal.Parse(res.Body, &im); err != nil {
 		return nil, err
 	}
 
-	return &im, nil
+	return im, nil
 }
 
 // GetItemMapping returns the mapping resource for an Element ID.
-func (r *Reference) GetItemMapping(elementID string) (*Mapping, error) {
+func (r *Reference) GetItemMapping(elementID string) ([]Mapping, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
 
@@ -79,10 +79,10 @@ func (r *Reference) GetItemMapping(elementID string) (*Mapping, error) {
 		return nil, err
 	}
 
-	var im Mapping
+	var im []Mapping
 	if err := internal.Parse(res.Body, &im); err != nil {
 		return nil, err
 	}
 
-	return &im, nil
+	return im, nil
 }

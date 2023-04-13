@@ -42,11 +42,11 @@ func (it Item) Label() entity.Label {
 	return entity.LabelInventoryItem
 }
 
-func (r *Reference) GetCatalogItem(options ...RequestOption) (*Item, error) {
+func (r *Reference) GetItem(options ...RequestOption) (*Item, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
 	if opts.itemNo == "" {
-		return nil, errors.New("id is required")
+		return nil, errors.New("item no is required")
 	}
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
@@ -76,21 +76,26 @@ func (r *Reference) GetItemImage(options ...RequestOption) (*Item, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
 	if opts.itemNo == "" {
-		return nil, errors.New("id is required")
+		return nil, errors.New("item no is required")
 	}
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
 	}
-	if opts.colorID == nil {
-		return nil, errors.New("color is required")
-	}
+	// if opts.colorID == nil {
+	// 	return nil, errors.New("color is required")
+	// }
 	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
+
+	color := 0
+	if opts.colorID != nil {
+		color = *opts.colorID
+	}
 
 	req, err := r.bl.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		fmt.Sprintf(pathGetItemImage, opts.itemType, opts.itemNo, opts.colorID),
+		fmt.Sprintf(pathGetItemImage, opts.itemType, opts.itemNo, color),
 		nil,
 		nil,
 	)

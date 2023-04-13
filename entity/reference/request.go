@@ -78,20 +78,20 @@ func (ro *requestOptions) toQuery(target queryTarget) (map[string]string, error)
 		}
 
 		if ro.guideType != nil {
-			params["guide_type"] = fmt.Sprintf("%t", *ro.guideType)
+			params["guide_type"] = fmt.Sprintf("%s", *ro.guideType)
 		}
 		if ro.condition != nil {
-			params["condition"] = fmt.Sprintf("%t", *ro.condition)
+			params["condition"] = fmt.Sprintf("%s", *ro.condition)
 		}
 		if ro.countryCode != nil {
-			params["country_code"] = fmt.Sprintf("%t", *ro.countryCode)
-			params["region"] = fmt.Sprintf("%t", *ro.region)
+			params["country_code"] = fmt.Sprintf("%s", *ro.countryCode)
+			params["region"] = fmt.Sprintf("%s", *ro.region)
 		}
 		if ro.currencyCode != nil {
-			params["currency_code"] = fmt.Sprintf("%t", *ro.currencyCode)
+			params["currency_code"] = fmt.Sprintf("%s", *ro.currencyCode)
 		}
 		if ro.vat != nil {
-			params["vat"] = fmt.Sprintf("%t", *ro.vat)
+			params["vat"] = fmt.Sprintf("%s", *ro.vat)
 		}
 	}
 

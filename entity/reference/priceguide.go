@@ -12,10 +12,7 @@ import (
 )
 
 type PriceGuide struct {
-	Item struct {
-		No   string `json:"no"`
-		Type string `json:"type"`
-	} `json:"item"`
+	Item          Item          `json:"item"`
 	NewOrUsed     string        `json:"new_or_used"`
 	CurrencyCode  string        `json:"currency_code"`
 	MinPrice      string        `json:"min_price"`
@@ -24,7 +21,7 @@ type PriceGuide struct {
 	QtyAvgPrice   string        `json:"qty_avg_price"`
 	UnitQuantity  int           `json:"unit_quantity"`
 	TotalQuantity int           `json:"total_quantity"`
-	PriceDetail   []PriceDetail `json:"price_detail"`
+	PriceDetails  []PriceDetail `json:"price_detail"`
 }
 
 type PriceDetail struct {
@@ -33,7 +30,7 @@ type PriceDetail struct {
 	SellerCountryCode string    `json:"seller_country_code"`
 	BuyerCountryCode  string    `json:"buyer_country_code"`
 	DateOrdered       time.Time `json:"date_ordered"`
-	ShippingAvailable string    `json:"shipping_available"`
+	ShippingAvailable bool      `json:"shipping_available"`
 }
 
 // PrimaryKey isn't meaningful for this entity.
@@ -49,7 +46,7 @@ func (r *Reference) GetPriceGuide(options ...RequestOption) (*PriceGuide, error)
 	var opts = requestOptions{}
 	opts.withOpts(options)
 	if opts.itemNo == "" {
-		return nil, errors.New("id is required")
+		return nil, errors.New("item no is required")
 	}
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")

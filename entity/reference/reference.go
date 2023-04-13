@@ -39,7 +39,7 @@ const (
 	pathGetCategory    = "/categories/%d"
 	pathGetColors      = "/colors"
 	pathGetColor       = "/colors/%d"
-	pathGetItemMapping = "/item_mapping/%d"
+	pathGetItemMapping = "/item_mapping/%s"
 	pathGetElementID   = "/item_mapping/%s/%s"
 )
 

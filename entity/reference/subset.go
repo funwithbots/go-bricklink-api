@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
-	"log"
 	"net/http"
 
 	"github.com/funwithbots/go-bricklink-api/entity"
@@ -40,7 +38,7 @@ func (r *Reference) GetSubsets(options ...RequestOption) (Subsets, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
 	if opts.itemNo == "" {
-		return nil, errors.New("id is required")
+		return nil, errors.New("item no is required")
 	}
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
@@ -64,9 +62,6 @@ func (r *Reference) GetSubsets(options ...RequestOption) (Subsets, error) {
 
 	var items []SubsetItem
 	if err := internal.Parse(res.Body, &items); err != nil {
-		buf, _ := io.ReadAll(res.Body)
-		log.Printf("\nResponse: ---'%s'---\nobject\n%+v\n", buf, res)
-
 		return nil, err
 	}
 

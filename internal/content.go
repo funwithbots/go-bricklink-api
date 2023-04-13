@@ -25,6 +25,7 @@ func Parse(body io.Reader, v interface{}) error {
 	if err := json.Unmarshal(c.Data, &v); err != nil {
 		return err
 	}
+
 	if c.Meta.Code != 200 {
 		return errors.New(c.Meta.Message)
 	}
