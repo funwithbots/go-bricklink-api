@@ -1,8 +1,12 @@
 package reference
 
 import (
+	"context"
+	"fmt"
+	"net/http"
+
 	"github.com/funwithbots/go-bricklink-api/entity"
-	"github.com/funwithbots/go-bricklink-api/util"
+	"github.com/funwithbots/go-bricklink-api/internal"
 )
 
 type Color struct {
@@ -24,10 +28,58 @@ func (c Color) Label() entity.Label {
 
 // GetColors returns a list of colors.
 func (r *Reference) GetColors() ([]Color, error) {
-	return nil, util.ErrNotImplemented
+	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	defer cancel()
+
+	req, err := r.bl.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		pathGetColors,
+		nil,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := r.bl.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var colors []Color
+	if err := internal.Parse(res.Body, &colors); err != nil {
+		return nil, err
+	}
+
+	return colors, nil
 }
 
 // GetColor returns a color by color ID.
-func (r *Reference) GetColor(colorID int) (Color, error) {
-	return Color{}, util.ErrNotImplemented
+func (r *Reference) GetColor(colorID int) (*Color, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	defer cancel()
+
+	req, err := r.bl.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		fmt.Sprintf(pathGetColor, colorID),
+		nil,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := r.bl.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var color Color
+	if err := internal.Parse(res.Body, &color); err != nil {
+		return nil, err
+	}
+
+	return &color, nil
 }

@@ -38,7 +38,7 @@ func (r *Reference) GetSubsets(options ...RequestOption) (Subsets, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
 	if opts.itemNo == "" {
-		return nil, errors.New("id is required")
+		return nil, errors.New("item no is required")
 	}
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
@@ -50,7 +50,7 @@ func (r *Reference) GetSubsets(options ...RequestOption) (Subsets, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetSubset, opts.itemType, opts.itemNo, query), nil)
+	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetSubset, opts.itemType, opts.itemNo), query, nil)
 	if err != nil {
 		return nil, err
 	}

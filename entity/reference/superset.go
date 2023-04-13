@@ -36,7 +36,7 @@ func (r *Reference) GetSupersets(options ...RequestOption) (Superset, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
 	if opts.itemNo == "" {
-		return nil, errors.New("id is required")
+		return nil, errors.New("item no is required")
 	}
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
@@ -52,7 +52,8 @@ func (r *Reference) GetSupersets(options ...RequestOption) (Superset, error) {
 	req, err := r.bl.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		fmt.Sprintf(pathGetSuperset, opts.itemType, opts.itemNo, query),
+		fmt.Sprintf(pathGetSuperset, opts.itemType, opts.itemNo),
+		query,
 		nil,
 	)
 	if err != nil {

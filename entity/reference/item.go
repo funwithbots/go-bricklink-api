@@ -21,7 +21,7 @@ type Item struct {
 	ThumbnailURL string `json:"thumbnail_url"`
 
 	// Weight and Dimensions are specified to 2 decimal places.
-	Weight string `json:"weight"`
+	Weight string `json:"weight"` // grams
 	DimX   string `json:"dim_x"`
 	DimY   string `json:"dim_y"`
 	DimZ   string `json:"dim_z"`
@@ -42,11 +42,11 @@ func (it Item) Label() entity.Label {
 	return entity.LabelInventoryItem
 }
 
-func (r *Reference) GetCatalogItem(options ...RequestOption) (*Item, error) {
+func (r *Reference) GetItem(options ...RequestOption) (*Item, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
 	if opts.itemNo == "" {
-		return nil, errors.New("id is required")
+		return nil, errors.New("item no is required")
 	}
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
@@ -54,7 +54,51 @@ func (r *Reference) GetCatalogItem(options ...RequestOption) (*Item, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItem, opts.itemType, opts.itemNo), nil)
+	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItem, opts.itemType, opts.itemNo), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := r.bl.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var item Item
+	if err := internal.Parse(res.Body, &item); err != nil {
+		return nil, err
+	}
+
+	return &item, nil
+}
+
+func (r *Reference) GetItemImage(options ...RequestOption) (*Item, error) {
+	var opts = requestOptions{}
+	opts.withOpts(options)
+	if opts.itemNo == "" {
+		return nil, errors.New("item no is required")
+	}
+	if opts.itemType == "" {
+		return nil, errors.New("type is required")
+	}
+	// if opts.colorID == nil {
+	// 	return nil, errors.New("color is required")
+	// }
+	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	defer cancel()
+
+	color := 0
+	if opts.colorID != nil {
+		color = *opts.colorID
+	}
+
+	req, err := r.bl.NewRequestWithContext(
+		ctx,
+		http.MethodGet,
+		fmt.Sprintf(pathGetItemImage, opts.itemType, opts.itemNo, color),
+		nil,
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}

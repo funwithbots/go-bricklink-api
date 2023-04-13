@@ -2,7 +2,7 @@ package reference
 
 import (
 	"fmt"
-	"strings"
+	"strconv"
 
 	"golang.org/x/exp/slices"
 
@@ -15,6 +15,7 @@ const (
 	queryTargetSupersets queryTarget = iota
 	queryTargetSubsets
 	queryTargetPriceGuide
+	queryTargetElementID
 )
 
 type RequestOption func(opts *requestOptions)
@@ -37,68 +38,64 @@ type requestOptions struct {
 
 // toQuery converts the request to a query string.
 // Each field is converted to a query string parameter.
-func (ro *requestOptions) toQuery(target queryTarget) (string, error) {
-	var params []string
+func (ro *requestOptions) toQuery(target queryTarget) (map[string]string, error) {
+	params := map[string]string{}
 	switch target {
-	case queryTargetSupersets:
+	case queryTargetSupersets, queryTargetElementID:
 		if ro.colorID != nil {
-			params = append(params, fmt.Sprintf("color_id=%d", *ro.colorID))
+			params["color_id"] = strconv.Itoa(*ro.colorID)
 		}
 	case queryTargetSubsets:
 		if ro.colorID != nil {
 			if ro.itemType != util.ItemTypePart.String() {
-				return "", fmt.Errorf("color_id is only valid for parts")
+				return nil, fmt.Errorf("color_id is only valid for parts")
 			}
-			params = append(params, fmt.Sprintf("color_id=%d", *ro.colorID))
+			params["color_id"] = strconv.Itoa(*ro.colorID)
 		}
-		if ro.box != nil {
-			params = append(params, fmt.Sprintf("box=%s", util.YesOrNo(*ro.box)))
-		}
-		if ro.instruction != nil {
-			params = append(params, fmt.Sprintf("instruction=%s", util.YesOrNo(*ro.instruction)))
-		}
-		if ro.breakMinifigs != nil {
-			params = append(params, fmt.Sprintf("break_minifigs=%s", util.YesOrNo(*ro.breakMinifigs)))
-		}
-		if ro.breakSubsets != nil {
-			params = append(params, fmt.Sprintf("break_subsets=%s", util.YesOrNo(*ro.breakSubsets)))
+		if ro.itemType == util.ItemTypeSet.String() {
+			if ro.box != nil {
+				params["box"] = fmt.Sprintf("%t", *ro.box)
+			}
+			if ro.instruction != nil {
+				params["instruction"] = fmt.Sprintf("%t", *ro.instruction)
+			}
+			if ro.breakMinifigs != nil {
+				params["break_minifigs"] = fmt.Sprintf("%t", *ro.breakMinifigs)
+			}
+			if ro.breakSubsets != nil {
+				params["break_subsets"] = fmt.Sprintf("%t", *ro.breakSubsets)
+			}
 		}
 	case queryTargetPriceGuide:
+		if (ro.countryCode != nil) != (ro.region != nil) {
+			return nil, fmt.Errorf("country_code and region must be set together")
+		}
 		if ro.colorID != nil {
 			if ro.itemType != util.ItemTypePart.String() {
-				return "", fmt.Errorf("color_id is only valid for parts")
+				return nil, fmt.Errorf("color_id is only valid for parts")
 			}
-			params = append(params, fmt.Sprintf("color_id=%d", *ro.colorID))
-		}
-		if (ro.countryCode != nil) != (ro.region != nil) {
-			return "", fmt.Errorf("country_code and region must be set together")
+			params["color_id"] = strconv.Itoa(*ro.colorID)
 		}
 
 		if ro.guideType != nil {
-			params = append(params, fmt.Sprintf("guide_type=%s", *ro.guideType))
+			params["guide_type"] = fmt.Sprintf("%s", *ro.guideType)
 		}
 		if ro.condition != nil {
-			params = append(params, fmt.Sprintf("instruction=%s", *ro.condition))
+			params["condition"] = fmt.Sprintf("%s", *ro.condition)
 		}
 		if ro.countryCode != nil {
-			params = append(params, fmt.Sprintf("country_code=%s", *ro.countryCode))
-			params = append(params, fmt.Sprintf("region=%s", *ro.region))
+			params["country_code"] = fmt.Sprintf("%s", *ro.countryCode)
+			params["region"] = fmt.Sprintf("%s", *ro.region)
 		}
 		if ro.currencyCode != nil {
-			params = append(params, fmt.Sprintf("currency_code=%s", *ro.currencyCode))
+			params["currency_code"] = fmt.Sprintf("%s", *ro.currencyCode)
 		}
 		if ro.vat != nil {
-			params = append(params, fmt.Sprintf("vat=%s", *ro.vat))
-		}
-		if len(params) > 0 {
-			return strings.Join(params, "&"), nil
+			params["vat"] = fmt.Sprintf("%s", *ro.vat)
 		}
 	}
 
-	if len(params) > 0 {
-		return strings.Join(params, "&"), nil
-	}
-	return "", nil
+	return params, nil
 }
 
 func (ro *requestOptions) withOpts(opts []RequestOption) {
@@ -158,7 +155,7 @@ func WithBreakSubsets(breakSubsets bool) RequestOption {
 
 // WithGuideType sets the guide type (sold or stock) filter.
 func WithGuideType(guideType string) RequestOption {
-	if guideTypeSold != guideType && guideTypeStock != guideType {
+	if GuideTypeSold != guideType && GuideTypeStock != guideType {
 		return nil
 	}
 	return func(opts *requestOptions) {
