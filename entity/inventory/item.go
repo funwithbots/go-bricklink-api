@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/funwithbots/go-bricklink-api/entity"
@@ -221,12 +220,4 @@ func (inv *Inventory) DeleteItem(id int) error {
 	}
 
 	return nil
-}
-func fromParams(params map[string]string) string {
-	query := make([]string, 0, len(params))
-	for k, v := range params {
-		query = append(query, fmt.Sprintf("%s=%s", k, v))
-	}
-
-	return strings.Join(query, "&")
 }

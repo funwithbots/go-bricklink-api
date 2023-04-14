@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -371,7 +370,6 @@ func TestInventory(t *testing.T) {
 				// t.SkipNow()
 			}
 
-			time.Sleep(500 * time.Millisecond)
 			for _, v := range items {
 				if v.Remarks != remark {
 					continue
