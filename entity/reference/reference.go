@@ -44,11 +44,11 @@ const (
 )
 
 type Reference struct {
-	bl bricklink.Bricklink
+	bricklink.Bricklink
 }
 
 func New(bl bricklink.Bricklink) *Reference {
 	return &Reference{
-		bl: bl,
+		bl,
 	}
 }

@@ -12,24 +12,24 @@ import (
 )
 
 type Item struct {
-	ID           string `json:"no"`
-	Name         string `json:"name"`
+	ID           string `json:"no,omitempty"`
+	Name         string `json:"name,omitempty"`
 	ItemType     string `json:"type"`
-	CategoryID   int    `json:"category_id"`
-	alternateNo  string `json:"alternate_no"`
-	ImageURL     string `json:"image_url"`
-	ThumbnailURL string `json:"thumbnail_url"`
+	CategoryID   int    `json:"category_id,omitempty"`
+	alternateNo  string `json:"alternate_no,omitempty"`
+	ImageURL     string `json:"image_url,omitempty"`
+	ThumbnailURL string `json:"thumbnail_url,omitempty"`
 
 	// Weight and Dimensions are specified to 2 decimal places.
-	Weight string `json:"weight"` // grams
-	DimX   string `json:"dim_x"`
-	DimY   string `json:"dim_y"`
-	DimZ   string `json:"dim_z"`
+	Weight string `json:"weight,omitempty"` // grams
+	DimX   string `json:"dim_x,omitempty"`
+	DimY   string `json:"dim_y,omitempty"`
+	DimZ   string `json:"dim_z,omitempty"`
 
-	YearReleased int    `json:"year_released"`
-	Description  string `json:"description"`
-	IsObsolete   bool   `json:"is_obsolete"`
-	LanguageCode string `json:"language_code"`
+	YearReleased int    `json:"year_released,omitempty"`
+	Description  string `json:"description,omitempty"`
+	IsObsolete   bool   `json:"is_obsolete,omitempty"`
+	LanguageCode string `json:"language_code,omitempty"`
 }
 
 func (it Item) PrimaryKey() int {
@@ -51,15 +51,15 @@ func (r *Reference) GetItem(options ...RequestOption) (*Item, error) {
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItem, opts.itemType, opts.itemNo), nil, nil)
+	req, err := r.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItem, opts.itemType, opts.itemNo), nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := r.bl.Client.Do(req)
+	res, err := r.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (r *Reference) GetItemImage(options ...RequestOption) (*Item, error) {
 	// if opts.colorID == nil {
 	// 	return nil, errors.New("color is required")
 	// }
-	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 
 	color := 0
@@ -92,7 +92,7 @@ func (r *Reference) GetItemImage(options ...RequestOption) (*Item, error) {
 		color = *opts.colorID
 	}
 
-	req, err := r.bl.NewRequestWithContext(
+	req, err := r.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
 		fmt.Sprintf(pathGetItemImage, opts.itemType, opts.itemNo, color),
@@ -103,7 +103,7 @@ func (r *Reference) GetItemImage(options ...RequestOption) (*Item, error) {
 		return nil, err
 	}
 
-	res, err := r.bl.Client.Do(req)
+	res, err := r.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}

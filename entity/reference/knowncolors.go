@@ -28,10 +28,10 @@ func (r *Reference) GetKnownColors(options ...RequestOption) ([]KnownColor, erro
 		return nil, errors.New("color id is only valid for parts")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(
+	req, err := r.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
 		fmt.Sprintf(pathGetKnownColors, opts.itemType, opts.itemNo),
@@ -42,7 +42,7 @@ func (r *Reference) GetKnownColors(options ...RequestOption) ([]KnownColor, erro
 		return nil, err
 	}
 
-	res, err := r.bl.Client.Do(req)
+	res, err := r.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}

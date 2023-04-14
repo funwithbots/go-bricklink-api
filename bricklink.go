@@ -1,10 +1,11 @@
 package go_bricklink_api
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"io"
+	"math/rand"
 	"net/http"
 	"strings"
 	"time"
@@ -33,6 +34,7 @@ type Bricklink struct {
 	oAuthTokenSecret string
 	oAuth            oauth.OAuth1
 	Timeout          time.Duration
+	Rand             *rand.Rand
 }
 
 type BricklinkOption func(opts *Bricklink)
@@ -146,15 +148,18 @@ func New(opts ...BricklinkOption) (*Bricklink, error) {
 		SignatureMethod: oAuthSignatureMethod,
 	}
 
+	bl.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+
 	return &bl, nil
 }
 
 // NewRequest creates a new HTTP request with auth headers and the specified method and path.
 // The body is optional. If present, it should be sent as an urlencoded strings.NewReader(body).
-func (bl *Bricklink) NewRequest(method string, path string, params map[string]string, body io.Reader) (*http.Request, error) {
+func (bl *Bricklink) NewRequest(method string, path string, params map[string]string, body []byte) (*http.Request, error) {
 	url := bl.baseURL + path
+	buf := bytes.NewReader(body)
 
-	req, err := http.NewRequest(method, url, body)
+	req, err := http.NewRequest(method, url, buf)
 	if err != nil {
 		return nil, err
 	}
@@ -171,16 +176,20 @@ func (bl *Bricklink) NewRequest(method string, path string, params map[string]st
 
 // NewRequestWithContext creates a new HTTP request with auth headers and the specified method and path.
 // The body is optional. If present, it should be sent as an urlencoded strings.NewReader(body).
-func (bl *Bricklink) NewRequestWithContext(ctx context.Context, method, path string, params map[string]string, body io.Reader) (*http.Request, error) {
+func (bl *Bricklink) NewRequestWithContext(ctx context.Context, method, path string, params map[string]string, body []byte) (*http.Request, error) {
 	url := bl.baseURL + path
+	buf := bytes.NewReader(body)
 
-	req, err := http.NewRequestWithContext(ctx, method, url, body)
+	req, err := http.NewRequestWithContext(ctx, method, url, buf)
 	if err != nil {
 		return nil, err
 	}
 	if query := fromParams(params); query != "" {
 		req.URL.RawQuery = query
 	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Accept-Charset", "utf-8")
 
 	authHeader := bl.auth(method, url, params)
 	authHeader = authHeader[:5] + " realm=\"\"," + authHeader[5:]

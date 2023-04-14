@@ -1,17 +1,19 @@
 package go_bricklink_api_test
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	bricklink "github.com/funwithbots/go-bricklink-api"
+	"github.com/funwithbots/go-bricklink-api/entity/inventory"
 	"github.com/funwithbots/go-bricklink-api/entity/reference"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
-// TestReference is a basic smoke test for the Bricklink Client.
+// TestReference is a set of basic tests for the Bricklink Catalog and related endpoints.
 func TestReference(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -223,4 +225,166 @@ func TestReference(t *testing.T) {
 			assert.Failf("", "wanted %d; got %s", want, v.ColorName)
 		}
 	})
+}
+
+// TestInventory is a set of basic tests for the Bricklink Inventory endpoints.
+// To run this test, you must have an active Bricklink store or run the mocker server.
+func TestInventory(t *testing.T) {
+	tests := []struct {
+		name        string
+		options     []inventory.RequestOption
+		invResource string
+		itemType    util.ItemType
+		want        string
+		colorID     int
+		itemID      string
+		categoryID  int
+		update      string
+	}{
+		{
+			name:    "part test",
+			options: []inventory.RequestOption{},
+			invResource: `{
+    "item": {
+        "no":"sticker",
+        "type":"PART"
+    },
+    "color_id":0,
+    "quantity":2,
+    "new_or_used":"U",
+    "unit_price":"1.2000",
+    "description":"test",
+    "bulk":1,
+    "is_retain":false,
+    "is_stock_room":true,
+    "sale_rate":0,
+    "my_cost":"1.0000"
+}`,
+			itemType:   util.ItemTypePart,
+			want:       "sticker",
+			colorID:    11,
+			itemID:     "sticker",
+			categoryID: 160,
+			update:     "test update",
+		},
+	}
+
+	opts := []bricklink.BricklinkOption{
+		bricklink.WithEnv(),
+	}
+
+	// comment this block to test against the real API
+	// TODO Fix test server.
+	// server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// 	w.WriteHeader(http.StatusOK)
+	// 	w.Write([]byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`))
+	// }))
+	// client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))
+	// if err != nil {
+	// 	t.Errorf("error creating client: %v", err)
+	// }
+	// bricklink.WithClient(client)
+	// end block
+
+	assert := assert.New(t)
+	bricklink, err := bricklink.New(opts...)
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+	inv := inventory.New(*bricklink)
+
+	for _, tt := range tests {
+		// Generate a random remark to avoid deleting real inventory items.
+		remark := "TEST " + util.RandomString(16, bricklink.Rand)
+
+		t.Run(tt.name, func(t *testing.T) {
+			var it inventory.Item
+			err := json.Unmarshal([]byte(tt.invResource), &it)
+			if err != nil {
+				assert.Failf("error marshaling inventory item:", "%s", err.Error())
+				t.SkipNow()
+			}
+			it.Remarks = remark
+			qty := it.Quantity
+
+			item, err := inv.CreateItem(it)
+			if err != nil {
+				assert.Failf("error creating inventory item:", "%s", err.Error())
+				t.SkipNow()
+			}
+			id := item.PrimaryKey()
+			if !assert.NotZerof(id, "expected non-zero item id; got %v", id) {
+				t.SkipNow()
+			}
+
+			item.Description = tt.update
+			item, err = inv.UpdateItem(*item)
+			if err != nil {
+				assert.Failf("error updating inventory item", "%d: %s", id, err.Error())
+				t.SkipNow()
+			}
+			if !assert.Equalf(tt.update, item.Description, "expected item description %s; got %s", tt.update, item.Description) {
+				t.SkipNow()
+			}
+
+			item, err = inv.GetItem(id)
+			if err != nil {
+				assert.Failf("error getting inventory item ", "%d: %s", id, err.Error())
+				t.SkipNow()
+			}
+			if !assert.Equalf(id, item.PrimaryKey(), "expected item id %d; got %d", id, item.PrimaryKey()) {
+				t.SkipNow()
+			}
+			if !assert.Equalf(tt.update, item.Description, "expected item description %s; got %s", tt.update, item.Description) {
+				t.SkipNow()
+			}
+			if !assert.Equalf(2*qty, item.Quantity, "expected item quantity %d; got %d", 2*qty, item.Quantity) {
+				t.SkipNow()
+			}
+
+			items := make([]inventory.Item, 2)
+			items[0] = it
+			items[0].StockRoomID = inventory.StatusStockRoomB.String()
+			items[1] = it
+			items[1].StockRoomID = inventory.StatusStockRoomC.String()
+			if err = inv.CreateItems(items); err != nil {
+				assert.Failf("error creating multiple inventory items:", "%s", err.Error())
+				t.SkipNow()
+			}
+
+			options := []inventory.RequestOption{
+				inventory.WithIncludeItemType(tt.itemType),
+				inventory.WithIncludeStatus(inventory.StatusStockRoomA),
+				inventory.WithIncludeStatus(inventory.StatusStockRoomB),
+				inventory.WithIncludeStatus(inventory.StatusStockRoomC),
+				inventory.WithIncludeCategoryID(tt.categoryID),
+				inventory.WithExcludeColorID(tt.colorID),
+				inventory.WithExcludeCategoryID(2), // exclude baseplates
+			}
+			items, err = inv.GetItems(options...)
+			if err != nil {
+				assert.Failf("error searching inventory items:", "%s", err.Error())
+				t.SkipNow()
+			}
+			if !assert.GreaterOrEqualf(len(items), 3, "expected at least 3 items; got %d", len(items)) {
+				// t.SkipNow()
+			}
+
+			for _, v := range items {
+				if v.Remarks != remark {
+					continue
+				}
+
+				id := v.PrimaryKey()
+				if err := inv.DeleteItem(id); err != nil {
+					assert.Failf("error deleting inventory item:", "%d: %s", id, err.Error())
+				}
+				if _, err := inv.GetItem(id); err == nil {
+					assert.Failf("expected error getting deleted inventory item:", "%d", id)
+				} else {
+					assert.Equalf("RESOURCE_NOT_FOUND", err.Error(), "expected error getting deleted inventory item %d", id)
+				}
+			}
+		})
+	}
 }
