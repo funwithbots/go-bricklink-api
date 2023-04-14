@@ -22,12 +22,16 @@ func Parse(body io.Reader, v interface{}) error {
 		return err
 	}
 
-	if err := json.Unmarshal(c.Data, &v); err != nil {
-		return err
+	if c.Meta.Code >= 300 {
+		return errors.New(c.Meta.Message)
 	}
 
-	if c.Meta.Code != 200 {
-		return errors.New(c.Meta.Message)
+	if len(c.Data) == 0 {
+		return nil
+	}
+
+	if err := json.Unmarshal(c.Data, &v); err != nil {
+		return err
 	}
 
 	return nil

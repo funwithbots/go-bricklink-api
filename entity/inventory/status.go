@@ -3,27 +3,27 @@ package inventory
 type Status int
 
 const (
-	Available Status = iota
-	Unavailable
-	StockRoomA
-	StockRoomB
-	StockRoomC
-	Reserved
+	StatusAvailable Status = iota
+	StatusUnavailable
+	StatusStockRoomA
+	StatusStockRoomB
+	StatusStockRoomC
+	StatusReserved
 )
 
 func (s Status) String() string {
 	switch s {
-	case Available:
+	case StatusAvailable:
 		return "Y"
-	case Unavailable:
+	case StatusUnavailable:
 		return "N"
-	case StockRoomA:
-		return "A"
-	case StockRoomB:
+	case StatusStockRoomA:
+		return "S"
+	case StatusStockRoomB:
 		return "B"
-	case StockRoomC:
+	case StatusStockRoomC:
 		return "C"
-	case Reserved:
+	case StatusReserved:
 		return "D"
 	default:
 		return ""

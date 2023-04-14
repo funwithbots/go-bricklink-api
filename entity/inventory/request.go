@@ -1,23 +1,65 @@
 package inventory
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/funwithbots/go-bricklink-api/util"
+)
+
+type queryTarget int
+
+const (
+	queryTargetGetItems queryTarget = iota
+)
 
 type RequestOption func(opts *requestOptions)
 
 // Slices are converted to a comma-separated string to specify multiple values to include/exclude.
-// Add a minus "-" sign to specify a value to exclude.
+// A minus "-" sign specifies a value to exclude.
 type requestOptions struct {
-	ItemType   []string // item_type
-	Statuses   []string // status
-	CategoryID []int    // category_id
-	ColorID    []int    // color_id
+	itemType   []string // item_type
+	statuses   []string // status
+	categoryID []string // category_id
+	colorID    []string // color_id
 }
 
 // toQuery converts the request to a query string.
 // Each field is converted to a query string parameter.
-func (ro *requestOptions) toQuery() string {
-	// TODO implement me
-	return "not implemented"
+func (ro *requestOptions) toQuery(target queryTarget) (map[string]string, error) {
+	params := map[string]string{}
+	switch target {
+	case queryTargetGetItems:
+		if len(ro.itemType) > 0 {
+			var list []string
+			for _, v := range ro.itemType {
+				list = append(list, v)
+			}
+			params["item_type"] = strings.Join(list, ",")
+		}
+		if len(ro.statuses) > 0 {
+			var list []string
+			for _, v := range ro.statuses {
+				list = append(list, v)
+			}
+			params["status"] = strings.Join(list, ",")
+		}
+		if len(ro.categoryID) > 0 {
+			var list []string
+			for _, v := range ro.categoryID {
+				list = append(list, v)
+			}
+			params["category_id"] = strings.Join(list, ",")
+		}
+		if len(ro.colorID) > 0 {
+			var list []string
+			for _, v := range ro.colorID {
+				list = append(list, v)
+			}
+			params["color_id"] = strings.Join(list, ",")
+		}
+	}
+	return params, nil
 }
 
 func (ro *requestOptions) withOpts(opts []RequestOption) {
@@ -26,32 +68,49 @@ func (ro *requestOptions) withOpts(opts []RequestOption) {
 	}
 }
 
-func WithItemType(itemType string) RequestOption {
+func WithIncludeItemType(itemType util.ItemType) RequestOption {
 	return func(opts *requestOptions) {
-		opts.ItemType = append(opts.ItemType, itemType)
+		opts.itemType = append(opts.itemType, itemType.String())
+	}
+}
+
+func WithExcludeItemType(itemType util.ItemType) RequestOption {
+	return func(opts *requestOptions) {
+		opts.itemType = append(opts.itemType, fmt.Sprintf("-%s", itemType.String()))
 	}
 }
 
 func WithIncludeStatus(status Status) RequestOption {
 	return func(opts *requestOptions) {
-		opts.Statuses = append(opts.Statuses, status.String())
+		opts.statuses = append(opts.statuses, status.String())
 	}
 }
 
 func WithExcludeStatus(status Status) RequestOption {
 	return func(opts *requestOptions) {
-		opts.Statuses = append(opts.Statuses, fmt.Sprintf("-%s", status.String()))
+		opts.statuses = append(opts.statuses, fmt.Sprintf("-%s", status.String()))
 	}
 }
 
-func WithCategoryID(categoryID int) RequestOption {
+func WithIncludeCategoryID(id int) RequestOption {
 	return func(opts *requestOptions) {
-		opts.CategoryID = append(opts.CategoryID, categoryID)
+		opts.categoryID = append(opts.categoryID, fmt.Sprintf("%d", id))
+	}
+}
+func WithExcludeCategoryID(id int) RequestOption {
+	return func(opts *requestOptions) {
+		opts.categoryID = append(opts.categoryID, fmt.Sprintf("-%d", id))
 	}
 }
 
-func WithColorID(colorID int) RequestOption {
+func WithIncludeColorID(id int) RequestOption {
 	return func(opts *requestOptions) {
-		opts.ColorID = append(opts.ColorID, colorID)
+		opts.colorID = append(opts.colorID, fmt.Sprintf("%d", id))
+	}
+}
+
+func WithExcludeColorID(id int) RequestOption {
+	return func(opts *requestOptions) {
+		opts.colorID = append(opts.colorID, fmt.Sprintf("-%d", id))
 	}
 }
