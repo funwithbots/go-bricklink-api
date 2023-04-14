@@ -43,15 +43,15 @@ func (r *Reference) GetElementID(options ...RequestOption) ([]Mapping, error) {
 	if err != nil {
 		return nil, err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetElementID, opts.itemType, opts.itemNo), query, nil)
+	req, err := r.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetElementID, opts.itemType, opts.itemNo), query, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := r.bl.Client.Do(req)
+	res, err := r.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -66,15 +66,15 @@ func (r *Reference) GetElementID(options ...RequestOption) ([]Mapping, error) {
 
 // GetItemMapping returns the mapping resource for an Element ID.
 func (r *Reference) GetItemMapping(elementID string) ([]Mapping, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItemMapping, elementID), nil, nil)
+	req, err := r.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetItemMapping, elementID), nil, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := r.bl.Client.Do(req)
+	res, err := r.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}

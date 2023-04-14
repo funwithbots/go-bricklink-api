@@ -28,10 +28,10 @@ func (c Color) Label() entity.Label {
 
 // GetColors returns a list of colors.
 func (r *Reference) GetColors() ([]Color, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(
+	req, err := r.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
 		pathGetColors,
@@ -42,7 +42,7 @@ func (r *Reference) GetColors() ([]Color, error) {
 		return nil, err
 	}
 
-	res, err := r.bl.Client.Do(req)
+	res, err := r.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -57,10 +57,10 @@ func (r *Reference) GetColors() ([]Color, error) {
 
 // GetColor returns a color by color ID.
 func (r *Reference) GetColor(colorID int) (*Color, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(
+	req, err := r.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
 		fmt.Sprintf(pathGetColor, colorID),
@@ -71,7 +71,7 @@ func (r *Reference) GetColor(colorID int) (*Color, error) {
 		return nil, err
 	}
 
-	res, err := r.bl.Client.Do(req)
+	res, err := r.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}

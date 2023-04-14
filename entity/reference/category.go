@@ -26,10 +26,10 @@ func (c *Category) Label() entity.Label {
 
 // GetCategories returns a list of categories.
 func (r *Reference) GetCategories() ([]Category, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(
+	req, err := r.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
 		pathGetCategories,
@@ -40,7 +40,7 @@ func (r *Reference) GetCategories() ([]Category, error) {
 		return nil, err
 	}
 
-	res, err := r.bl.Client.Do(req)
+	res, err := r.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -55,10 +55,10 @@ func (r *Reference) GetCategories() ([]Category, error) {
 
 // GetCategory returns the details of a specific category.
 func (r *Reference) GetCategory(id int) (*Category, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(
+	req, err := r.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
 		fmt.Sprintf(pathGetCategory, id),
@@ -69,7 +69,7 @@ func (r *Reference) GetCategory(id int) (*Category, error) {
 		return nil, err
 	}
 
-	res, err := r.bl.Client.Do(req)
+	res, err := r.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}

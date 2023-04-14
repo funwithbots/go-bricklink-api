@@ -46,10 +46,10 @@ func (r *Reference) GetSupersets(options ...RequestOption) (Superset, error) {
 		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), r.bl.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 
-	req, err := r.bl.NewRequestWithContext(
+	req, err := r.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
 		fmt.Sprintf(pathGetSuperset, opts.itemType, opts.itemNo),
@@ -60,7 +60,7 @@ func (r *Reference) GetSupersets(options ...RequestOption) (Superset, error) {
 		return nil, err
 	}
 
-	res, err := r.bl.Client.Do(req)
+	res, err := r.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
