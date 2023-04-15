@@ -5,6 +5,7 @@ import bricklink "github.com/funwithbots/go-bricklink-api"
 const (
 	pathGetOrders          = "/orders"
 	pathGetOrder           = "/orders/%d"
+	pathGetOrderFeedback   = "/orders/%d/feedback"
 	pathGetOrderItems      = "/orders/%d/items"
 	pathGetMessages        = "/orders/%d/messages"
 	pathGetFeedback        = "/feedback/%d"

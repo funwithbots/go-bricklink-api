@@ -137,6 +137,28 @@ func (o *Orders) GetFeedback(id int) (*Feedback, error) {
 }
 
 // GetOrderFeedback returns the feedback for an order
-func (o *Orders) GetOrderFeedback(id int) ([]Feedback, error) {
-	return nil, util.ErrNotImplemented
+func (o *Orders) GetOrderFeedback(id int) (*Feedback, error) {
+	if id <= 0 {
+		return nil, fmt.Errorf("a positive value for id is required")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), o.Timeout)
+	defer cancel()
+
+	req, err := o.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetOrderFeedback, id), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := o.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var out Feedback
+	if err := internal.Parse(res.Body, &out); err != nil {
+		return nil, err
+	}
+
+	return &out, nil
 }

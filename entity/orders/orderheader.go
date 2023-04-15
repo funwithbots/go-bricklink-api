@@ -137,34 +137,34 @@ func (o *Orders) GetOrderHeaders(options ...RequestOption) ([]Header, error) {
 		return nil, err
 	}
 
-	var hdrs []Header
-	if err := internal.Parse(res.Body, &hdrs); err != nil {
+	var out []Header
+	if err := internal.Parse(res.Body, &out); err != nil {
 		return nil, err
 	}
 
-	return hdrs, nil
+	return out, nil
 }
 
 // UpdateOrder updates the properties of a specific order header.
 // It strips out values that are read-only before submitting the update.
 // https://www.bricklink.com/v3/api.page?page=update-order
-func (o *Orders) UpdateOrder(hdr Header) (*Header, error) {
-	if hdr.PrimaryKey() == 0 {
+func (o *Orders) UpdateOrder(header Header) (*Header, error) {
+	if header.PrimaryKey() == 0 {
 		return nil, fmt.Errorf("a positive value for id is required")
 	}
 
 	// Only update the fields that can be updated.
 	h := Header{}
-	h.Cost.Credit = hdr.Cost.Credit
-	h.Cost.Insurance = hdr.Cost.Insurance
-	h.Cost.Etc1 = hdr.Cost.Etc1
-	h.Cost.Etc2 = hdr.Cost.Etc2
-	h.Cost.Shipping = hdr.Cost.Shipping
-	h.Shipping.DateShipped = hdr.Shipping.DateShipped
-	h.Shipping.MethodID = hdr.Shipping.MethodID
-	h.Shipping.TrackingLink = hdr.Shipping.TrackingLink
-	h.Shipping.TrackingNo = hdr.Shipping.TrackingNo
-	h.Remarks = hdr.Remarks
+	h.Cost.Credit = header.Cost.Credit
+	h.Cost.Insurance = header.Cost.Insurance
+	h.Cost.Etc1 = header.Cost.Etc1
+	h.Cost.Etc2 = header.Cost.Etc2
+	h.Cost.Shipping = header.Cost.Shipping
+	h.Shipping.DateShipped = header.Shipping.DateShipped
+	h.Shipping.MethodID = header.Shipping.MethodID
+	h.Shipping.TrackingLink = header.Shipping.TrackingLink
+	h.Shipping.TrackingNo = header.Shipping.TrackingNo
+	h.Remarks = header.Remarks
 
 	ctx, cancel := context.WithTimeout(context.Background(), o.Timeout)
 	defer cancel()
@@ -174,7 +174,7 @@ func (o *Orders) UpdateOrder(hdr Header) (*Header, error) {
 		return nil, err
 	}
 
-	req, err := o.NewRequestWithContext(ctx, http.MethodPut, fmt.Sprintf(pathUpdateOrder, hdr.PrimaryKey()), nil, body)
+	req, err := o.NewRequestWithContext(ctx, http.MethodPut, fmt.Sprintf(pathUpdateOrder, header.PrimaryKey()), nil, body)
 	if err != nil {
 		return nil, err
 	}
