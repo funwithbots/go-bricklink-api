@@ -100,12 +100,12 @@ func (inv *Inventory) GetItems(options ...RequestOption) ([]Item, error) {
 		return nil, err
 	}
 
-	var items []Item
-	if err := internal.Parse(res.Body, &items); err != nil {
+	var out []Item
+	if err := internal.Parse(res.Body, &out); err != nil {
 		return nil, err
 	}
 
-	return items, nil
+	return out, nil
 }
 
 // CreateItem creates a single item in the inventory.
@@ -149,21 +149,20 @@ func (inv *Inventory) CreateItems(items []Item) error {
 		return err
 	}
 
-	req, err := inv.NewRequestWithContext(ctx, http.MethodPost, pathCreateItem, nil, body)
+	req, err := inv.NewRequestWithContext(ctx, http.MethodPost, pathCreateItems, nil, body)
 	if err != nil {
 		return err
 	}
 
-	if _, err = inv.Client.Do(req); err != nil {
-		return err
-	}
-
-	return nil
+	_, err = inv.Client.Do(req)
+	return err
 }
 
 func (inv *Inventory) UpdateItem(item Item) (*Item, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), inv.Timeout)
-	defer cancel()
+	if item.PrimaryKey() == 0 {
+		return nil, fmt.Errorf("a positive value for id is required")
+	}
+
 	item.DateCreated = nil
 	if item.TierQuantity1 == 0 {
 		item.TierPrice1 = ""
@@ -174,6 +173,9 @@ func (inv *Inventory) UpdateItem(item Item) (*Item, error) {
 	if item.TierQuantity3 == 0 {
 		item.TierPrice3 = ""
 	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), inv.Timeout)
+	defer cancel()
 
 	body, err := json.Marshal(item)
 	if err != nil {

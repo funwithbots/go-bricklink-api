@@ -16,7 +16,7 @@ It comprises three packages that represent broad areas of the API.
    - Price Guide
    - Supersets
    - Subsets
- - Order API: The Bricklink order system.
+ - Order API: The Bricklink hdr system.
    - Orders
    - Order Items
    - Feedback
@@ -27,10 +27,9 @@ It comprises three packages that represent broad areas of the API.
    - Inventories
    - Inventory Items
 
-The API packages share a client which is an implementation to allow mocking.
+The API packages share an HTTP client which is an implementation to allow mocking.
 
-Each API Resource is available as a separate package with a struct and methods to access the API.
-API Resources are provided as implementations of the main package.
+Each API Resource is available as a separate package with one or more structs and methods to access the API. Each Resource Representation in the API has its own struct. API methods are members of the package.
 
 Coupons and Setting APIs are not implemented.
 
@@ -45,7 +44,7 @@ import (
 )	
 
 func main() {
-   bl, err := bricklink.New(bricklink.WithEnv())
+    bl, err := bricklink.New(bricklink.WithEnv())
     if err != nil {
         panic(err)
     }
@@ -56,6 +55,8 @@ func main() {
         reference.WithItemType(reference.ItemTypePart), 
     )
     fmt.Printf("%s %s is %s\n", item.ItemType, item.ItemNo, item.Name)
+
+   inv := inventory.New(*bl)
 }
 ```
 

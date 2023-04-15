@@ -9,6 +9,7 @@ import (
 
 	bricklink "github.com/funwithbots/go-bricklink-api"
 	"github.com/funwithbots/go-bricklink-api/entity/inventory"
+	"github.com/funwithbots/go-bricklink-api/entity/orders"
 	"github.com/funwithbots/go-bricklink-api/entity/reference"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
@@ -385,6 +386,114 @@ func TestInventory(t *testing.T) {
 					assert.Equalf("RESOURCE_NOT_FOUND", err.Error(), "expected error getting deleted inventory item %d", id)
 				}
 			}
+		})
+	}
+}
+
+// TestOrders is a set of basic tests for the Bricklink Order System endpoints.
+// To run this test, you must have an active Bricklink store or run the mocker server.
+func TestOrders(t *testing.T) {
+	tests := []struct {
+		name    string
+		options []orders.RequestOption
+		want    string
+	}{
+		{
+			name:    "orders test",
+			options: []orders.RequestOption{},
+		},
+	}
+
+	opts := []bricklink.BricklinkOption{
+		bricklink.WithEnv(),
+	}
+
+	// comment this block to test against the real API
+	// TODO Fix test server.
+	// server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// 	w.WriteHeader(http.StatusOK)
+	// 	w.Write([]byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`))
+	// }))
+	// client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))
+	// if err != nil {
+	// 	t.Errorf("error creating client: %v", err)
+	// }
+	// bricklink.WithClient(client)
+	// end block
+
+	assert := assert.New(t)
+	bricklink, err := bricklink.New(opts...)
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+	ord := orders.New(*bricklink)
+	if len(ord.ShippingMethods) == 0 {
+		assert.FailNow("no shipping methods found")
+	}
+
+	for _, tt := range tests {
+		// Generate a random remark to avoid mucking up existing orders.
+		// remark := "TEST " + util.RandomString(16, bricklink.Rand)
+
+		t.Run(tt.name, func(t *testing.T) {
+			// get filed orders
+			filed, err := ord.GetOrderHeaders(orders.WithFiled(true))
+			if err != nil {
+				assert.Failf("error marshaling inventory item:", "%s", err.Error())
+				t.SkipNow()
+			}
+
+			// get unfiled orders
+			unfiled, err := ord.GetOrderHeaders()
+			if err != nil {
+				assert.Failf("error marshaling inventory item:", "%s", err.Error())
+				t.SkipNow()
+			}
+
+			// if no orders, stop. Otherwise, save an order to test. Prefer filed order.
+			order := &orders.Header{}
+			if len(unfiled) != 0 {
+				order = &unfiled[0]
+			}
+			if len(filed) != 0 {
+				order = &filed[0]
+			}
+			if order == nil {
+				t.Log("no orders to test")
+				t.SkipNow()
+			}
+			// original := order
+
+			// if both filed and unfiled orders are found, make sure the lists don't match
+			if len(filed) != 0 && len(unfiled) != 0 && !assert.NotEqualf(
+				filed[0].PrimaryKey(),
+				unfiled[0].PrimaryKey(),
+				"expected different order ids; got %s", filed[0].PrimaryKey(),
+			) {
+				t.SkipNow()
+			}
+
+			// get order
+
+			// get order items
+
+			// get order messages
+
+			// get order feedback
+
+			// update order
+
+			// update payment status
+
+			// update order status
+
+			// revert changes
+			// undo order status from original
+			// undo payment status from original
+			// undo order update from original
+
+			// check to be sure no unexpected changes occurred
+			// Get order, compare to original.
 		})
 	}
 }

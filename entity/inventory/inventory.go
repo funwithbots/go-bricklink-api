@@ -16,7 +16,6 @@ const (
 	pathCreateItems = "/inventories"    // POST
 	pathUpdateItem  = "/inventories/%d" // PUT
 	pathDeleteItem  = "/inventories/%d" // DELETE
-
 )
 
 type Inventory struct {

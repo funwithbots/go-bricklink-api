@@ -1,31 +1,38 @@
 package orders
 
-// Status represents the status of an orders.
-// The lifetime of a transaction is defined by its status. The below outlines each status an orders can have:
-// Statuses can be set by the seller, the buyer or by the system.
+// OrderStatus represents the status of an order.
+// The lifetime of a transaction is defined by its status. The below outlines each status an order can have:
+// Statuses can be set by the seller, the buyer, or by the system.
 // N?? statuses prevent buyers from placing additional orders until the issue is resolved.
-// Orders in pending, updated, processing, or ready status can be added to by the buyer.
-type Status int
+// Buyers can add to orders in pending, updated, processing, or ready statuses.
+type OrderStatus int
 
 const (
-	StatusPending    Status = iota // System
-	StatusUpdated                  // System
-	StatusProcessing               // Seller
-	StatusReady                    // Seller
-	StatusPaid                     // Seller or System
-	StatusPacked                   // Seller
-	StatusShipped                  // Seller
-	StatusReceived                 // Buyer
-	StatusCompleted                // Buyer or Seller
-	StatusOCR                      // System
-	StatusNPB                      // System
-	StatusNPX                      // System
-	StatusNRS                      // System
-	StatusNSS                      // System
-	StatusCancelled                // System
+	StatusUndefined OrderStatus = iota // System
+	StatusPending
+	StatusUpdated    // System
+	StatusProcessing // Seller
+	StatusReady      // Seller
+	StatusPaid       // Seller or System
+	StatusPacked     // Seller
+	StatusShipped    // Seller
+	StatusReceived   // Buyer
+	StatusCompleted  // Buyer or Seller
+	StatusOCR        // System
+	StatusNPB        // System
+	StatusNPX        // System
+	StatusNRS        // System
+	StatusNSS        // System
+	StatusCancelled  // System
 )
 
-func (s Status) String() string {
+const (
+	statusBody               = `{"status":"%s", "value":"%s"}`
+	updateFieldOrderStatus   = "status"
+	updateFieldPaymentStatus = "payment_status"
+)
+
+func (s OrderStatus) String() string {
 	switch s {
 	case StatusPending:
 		return "pending"
@@ -62,12 +69,12 @@ func (s Status) String() string {
 	}
 }
 
-var buyerStatuses = map[Status]interface{}{
+var buyerStatuses = map[OrderStatus]interface{}{
 	StatusReceived:  nil,
 	StatusCompleted: nil,
 }
 
-var sellerStatuses = map[Status]interface{}{
+var sellerStatuses = map[OrderStatus]interface{}{
 	StatusProcessing: nil,
 	StatusReady:      nil,
 	StatusPaid:       nil,
@@ -76,7 +83,7 @@ var sellerStatuses = map[Status]interface{}{
 	StatusCompleted:  nil,
 }
 
-var systemStatuses = map[Status]interface{}{
+var systemStatuses = map[OrderStatus]interface{}{
 	StatusPending:   nil,
 	StatusUpdated:   nil,
 	StatusPaid:      nil,
@@ -86,4 +93,38 @@ var systemStatuses = map[Status]interface{}{
 	StatusNRS:       nil,
 	StatusNSS:       nil,
 	StatusCancelled: nil,
+}
+
+type PaymentStatus int
+
+const (
+	PaymentStatusUndefined PaymentStatus = iota
+	PaymentStatusNone
+	PaymentStatusSent
+	PaymentStatusReceived
+	PaymentStatusClearing
+	PaymentStatusReturned
+	PaymentStatusBounced
+	PaymentStatusCompleted
+)
+
+func (ps PaymentStatus) String() string {
+	switch ps {
+	case PaymentStatusNone:
+		return "none"
+	case PaymentStatusSent:
+		return "sent"
+	case PaymentStatusReceived:
+		return "received"
+	case PaymentStatusClearing:
+		return "clearing"
+	case PaymentStatusReturned:
+		return "returned"
+	case PaymentStatusBounced:
+		return "bounced"
+	case PaymentStatusCompleted:
+		return "completed"
+	default:
+		return ""
+	}
 }

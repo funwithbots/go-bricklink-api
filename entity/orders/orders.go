@@ -3,15 +3,37 @@ package orders
 import bricklink "github.com/funwithbots/go-bricklink-api"
 
 const (
-	pathGetOrders = "/orders/%s/%s"
+	pathGetOrders          = "/orders"
+	pathGetOrder           = "/orders/%d"
+	pathGetOrderItems      = "/orders/%d/items"
+	pathGetMessages        = "/orders/%d/messages"
+	pathGetFeedback        = "/feedback/%d"
+	pathGetFeedbackList    = "/feedback"
+	pathPostFeedback       = "/feedback"
+	pathReplyFeedback      = "/feedback/%d/reply"
+	pathGetMemberRating    = "/members/%s/ratings"
+	pathGetMemberNote      = "/members/%s/notes"
+	pathCreateMemberNote   = "/members/%s/notes"
+	pathUpdateMemberNote   = "/members/%s/notes/"
+	pathDeleteMemberNote   = "/members/%s/notes"
+	pathUpdateOrder        = "/orders/%d"
+	pathUpdateStatus       = "/orders/%d/status"
+	pathUpdatePayment      = "/orders/%d/payment_status"
+	pathSendDriveThru      = "/orders/%d/drive_thru"
+	pathGetShippingMethods = "/settings/shipping_methods"
 )
 
 type Orders struct {
-	bl bricklink.Bricklink
+	bricklink.Bricklink
+
+	ShippingMethods map[int]ShippingMethod
 }
 
 func New(bl bricklink.Bricklink) *Orders {
-	return &Orders{
-		bl: bl,
-	}
+	o := Orders{}
+	o.Bricklink = bl
+
+	_ = o.loadShippingMethods()
+
+	return &o
 }
