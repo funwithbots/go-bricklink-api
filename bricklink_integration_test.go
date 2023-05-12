@@ -2,6 +2,8 @@ package go_bricklink_api_test
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -11,17 +13,30 @@ import (
 	"github.com/funwithbots/go-bricklink-api/entity/inventory"
 	"github.com/funwithbots/go-bricklink-api/entity/orders"
 	"github.com/funwithbots/go-bricklink-api/entity/reference"
+	"github.com/funwithbots/go-bricklink-api/internal"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
 // Set this to a pending order to test endpoints that can update the order.
 var pendingOrderID = 22132848
+var useTestServer = false
+
+type testServerParams struct {
+	UseTestServer bool
+	Status        int
+	Response      []byte
+}
+
+// Use this for the live server.
+var defaultTestServer = testServerParams{}
 
 // Set this to a shipped order to test setting feedback and drive thru.
 var shippedOrderID = 0
 
 // TestReference is a set of basic tests for the Bricklink Catalog and related endpoints.
 func TestReference(t *testing.T) {
+	assert := assert.New(t)
+
 	tests := []struct {
 		name     string
 		options  []reference.RequestOption
@@ -85,28 +100,20 @@ func TestReference(t *testing.T) {
 		},
 	}
 
-	opts := []bricklink.BricklinkOption{
-		bricklink.WithEnv(),
+	serverOpts := testServerParams{
+		UseTestServer: useTestServer,
+		Status:        200,
+		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
 	}
 
-	// comment this block to test against the real API
-	// TODO Fix test server for additional test cases
-	// server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	w.WriteHeader(http.StatusOK)
-	// 	w.Write([]byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`))
-	// }))
-	// client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))
-	// if err != nil {
-	// 	t.Errorf("error creating client: %v", err)
-	// }
-	// bricklink.WithClient(client)
-	// end block
-
-	assert := assert.New(t)
-	bricklink, err := bricklink.New(opts...)
+	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
+	if closeFn != nil {
+		defer closeFn()
+	}
+
 	ref := reference.New(*bricklink)
 
 	for _, tt := range tests {
@@ -237,6 +244,7 @@ func TestReference(t *testing.T) {
 // TestInventory is a set of basic tests for the Bricklink Inventory endpoints.
 // To run this test, you must have an active Bricklink store or run the mocker server.
 func TestInventory(t *testing.T) {
+	assert := assert.New(t)
 	tests := []struct {
 		name        string
 		options     []inventory.RequestOption
@@ -276,28 +284,20 @@ func TestInventory(t *testing.T) {
 		},
 	}
 
-	opts := []bricklink.BricklinkOption{
-		bricklink.WithEnv(),
+	serverOpts := testServerParams{
+		UseTestServer: useTestServer,
+		Status:        200,
+		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
 	}
 
-	// comment this block to test against the real API
-	// TODO Fix test server.
-	// server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	w.WriteHeader(http.StatusOK)
-	// 	w.Write([]byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`))
-	// }))
-	// client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))
-	// if err != nil {
-	// 	t.Errorf("error creating client: %v", err)
-	// }
-	// bricklink.WithClient(client)
-	// end block
-
-	assert := assert.New(t)
-	bricklink, err := bricklink.New(opts...)
+	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
+	if closeFn != nil {
+		defer closeFn()
+	}
+
 	inv := inventory.New(*bricklink)
 
 	for _, tt := range tests {
@@ -399,6 +399,8 @@ func TestInventory(t *testing.T) {
 // TestOrders is a set of basic tests for the Bricklink Order System endpoints.
 // To run this test, you must have an active Bricklink store or run the mocker server.
 func TestOrders(t *testing.T) {
+	assert := assert.New(t)
+
 	tests := []struct {
 		name    string
 		options []orders.RequestOption
@@ -412,28 +414,20 @@ func TestOrders(t *testing.T) {
 		},
 	}
 
-	opts := []bricklink.BricklinkOption{
-		bricklink.WithEnv(),
+	serverOpts := testServerParams{
+		UseTestServer: useTestServer,
+		Status:        200,
+		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
 	}
 
-	// comment this block to test against the real API
-	// TODO Fix test server.
-	// server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	w.WriteHeader(http.StatusOK)
-	// 	w.Write([]byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`))
-	// }))
-	// client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))
-	// if err != nil {
-	// 	t.Errorf("error creating client: %v", err)
-	// }
-	// bricklink.WithClient(client)
-	// end block
-
-	assert := assert.New(t)
-	bricklink, err := bricklink.New(opts...)
+	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
+	if closeFn != nil {
+		defer closeFn()
+	}
+
 	ord, err := orders.New(*bricklink)
 	if err != nil {
 		assert.FailNow(err.Error())
@@ -567,7 +561,20 @@ func TestOrders_Updating(t *testing.T) {
 		t.SkipNow()
 	}
 	assert := assert.New(t)
-	bricklink, err := bricklink.New()
+
+	serverOpts := testServerParams{
+		UseTestServer: useTestServer,
+		Status:        200,
+		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
+	}
+
+	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+	if closeFn != nil {
+		defer closeFn()
+	}
 
 	if err != nil {
 		assert.FailNow(err.Error())
@@ -666,4 +673,23 @@ func TestOrders_Updating(t *testing.T) {
 		assert.FailNowf("order not reverted", "expected %s; got %s", oh.Remarks, ohupdate.Remarks)
 		t.SkipNow()
 	}
+}
+
+func newBricklink(serverOpts *testServerParams, opts ...bricklink.BricklinkOption) (*bricklink.Bricklink, func(), error) {
+	var closeFn func()
+	if serverOpts != nil && serverOpts.UseTestServer {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(serverOpts.Status)
+			w.Write(serverOpts.Response)
+		}))
+		closeFn = func() { server.Close() }
+		client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))
+		if err != nil {
+			return nil, closeFn, err
+		}
+		opts = append(opts, bricklink.WithClient(client))
+	}
+
+	bricklink, err := bricklink.New(opts...)
+	return bricklink, closeFn, err
 }

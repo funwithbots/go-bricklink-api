@@ -24,6 +24,7 @@ const (
 	defaultBaseURL        = "https://api.bricklink.com/api/store/v1"
 )
 
+// Bricklink is the client for the Bricklink API.
 type Bricklink struct {
 	Client internal.Client
 
@@ -123,6 +124,7 @@ func WithBaseURL(baseURL string) BricklinkOption {
 	}
 }
 
+// New creates a new Bricklink client.
 func New(opts ...BricklinkOption) (*Bricklink, error) {
 	var bl Bricklink
 	bl.withOpts(opts)
