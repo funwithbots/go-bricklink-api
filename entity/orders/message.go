@@ -1,10 +1,13 @@
 package orders
 
 import (
+	"context"
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/funwithbots/go-bricklink-api/entity"
-	"github.com/funwithbots/go-bricklink-api/util"
+	"github.com/funwithbots/go-bricklink-api/internal"
 )
 
 type Message struct {
@@ -24,5 +27,27 @@ func (m *Message) Label() entity.Label {
 }
 
 func (o *Orders) GetOrderMessages(id int) ([]Message, error) {
-	return nil, util.ErrNotImplemented
+	if id <= 0 {
+		return nil, fmt.Errorf("a positive value for id is required")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), o.Timeout)
+	defer cancel()
+
+	req, err := o.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetMessages, id), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := o.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var out []Message
+	if err := internal.Parse(res.Body, &out); err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }

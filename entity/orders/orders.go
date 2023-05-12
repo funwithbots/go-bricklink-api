@@ -3,15 +3,44 @@ package orders
 import bricklink "github.com/funwithbots/go-bricklink-api"
 
 const (
-	pathGetOrders = "/orders/%s/%s"
+	pathGetOrders        = "/orders"
+	pathGetOrder         = "/orders/%d"
+	pathGetOrderFeedback = "/orders/%d/feedback"
+	pathGetOrderItems    = "/orders/%d/items"
+	pathGetMessages      = "/orders/%d/messages"
+	pathGetFeedback      = "/feedback/%d"
+	pathGetFeedbackList  = "/feedback"
+	pathPostFeedback     = "/feedback"
+	pathReplyFeedback    = "/feedback/%d/reply"
+	pathGetMemberRating  = "/members/%s/ratings"
+
+	// Member notes documentation is incorrect.
+	pathGetMemberNote      = "/members/%s/my_notes"
+	pathCreateMemberNote   = "/members/%s/my_notes"
+	pathUpdateMemberNote   = "/members/%s/my_notes"
+	pathDeleteMemberNote   = "/members/%s/my_notes"
+	pathUpdateOrder        = "/orders/%d"
+	pathUpdateStatus       = "/orders/%d/status"
+	pathUpdatePayment      = "/orders/%d/payment_status"
+	pathSendDriveThru      = "/orders/%d/drive_thru"
+	pathGetShippingMethods = "/settings/shipping_methods"
 )
 
 type Orders struct {
-	bl bricklink.Bricklink
+	bricklink.Bricklink
+
+	ShippingMethods map[int]ShippingMethod
 }
 
-func New(bl bricklink.Bricklink) *Orders {
-	return &Orders{
-		bl: bl,
+// New creates a new Orders instance.
+func New(bl bricklink.Bricklink) (*Orders, error) {
+	o := Orders{}
+	o.Bricklink = bl
+
+	err := o.loadShippingMethods()
+	if err != nil {
+		return nil, err
 	}
+
+	return &o, nil
 }

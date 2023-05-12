@@ -15,9 +15,11 @@ const (
 	LabelMessage
 	LabelNote
 	LabelOrder
+	LabelOrderHeader
 	LabelOrderItem
 	LabelPriceGuide
 	LabelProblem
+	LabelShippingMethod
 	LabelSubset
 	LabelSuperset
 )
@@ -46,12 +48,16 @@ func (l Label) String() string {
 		return "Note"
 	case LabelOrder:
 		return "Order"
+	case LabelOrderHeader:
+		return "OrderHeader"
 	case LabelOrderItem:
 		return "OrderItem"
 	case LabelPriceGuide:
 		return "PriceGuide"
 	case LabelProblem:
 		return "Problem"
+	case LabelShippingMethod:
+		return "ShippingMethod"
 	case LabelSubset:
 		return "Subset"
 	case LabelSuperset:

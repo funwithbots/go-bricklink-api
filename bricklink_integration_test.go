@@ -2,6 +2,9 @@ package go_bricklink_api_test
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -9,12 +12,32 @@ import (
 
 	bricklink "github.com/funwithbots/go-bricklink-api"
 	"github.com/funwithbots/go-bricklink-api/entity/inventory"
+	"github.com/funwithbots/go-bricklink-api/entity/orders"
 	"github.com/funwithbots/go-bricklink-api/entity/reference"
+	"github.com/funwithbots/go-bricklink-api/internal"
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
+// Set this to a pending order to test endpoints that can update the order.
+var pendingOrderID = 0
+var useTestServer = true
+
+type testServerParams struct {
+	UseTestServer bool
+	Status        int
+	Response      []byte
+}
+
+// Use this for the live server.
+var defaultTestServer = testServerParams{}
+
+// Set this to a shipped order to test setting feedback and drive thru.
+var shippedOrderID = 0
+
 // TestReference is a set of basic tests for the Bricklink Catalog and related endpoints.
 func TestReference(t *testing.T) {
+	assert := assert.New(t)
+
 	tests := []struct {
 		name     string
 		options  []reference.RequestOption
@@ -78,28 +101,20 @@ func TestReference(t *testing.T) {
 		},
 	}
 
-	opts := []bricklink.BricklinkOption{
-		bricklink.WithEnv(),
+	serverOpts := testServerParams{
+		UseTestServer: useTestServer,
+		Status:        200,
+		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
 	}
 
-	// comment this block to test against the real API
-	// TODO Fix test server for additional test cases
-	// server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	w.WriteHeader(http.StatusOK)
-	// 	w.Write([]byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`))
-	// }))
-	// client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))
-	// if err != nil {
-	// 	t.Errorf("error creating client: %v", err)
-	// }
-	// bricklink.WithClient(client)
-	// end block
-
-	assert := assert.New(t)
-	bricklink, err := bricklink.New(opts...)
+	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
+	if closeFn != nil {
+		defer closeFn()
+	}
+
 	ref := reference.New(*bricklink)
 
 	for _, tt := range tests {
@@ -230,6 +245,7 @@ func TestReference(t *testing.T) {
 // TestInventory is a set of basic tests for the Bricklink Inventory endpoints.
 // To run this test, you must have an active Bricklink store or run the mocker server.
 func TestInventory(t *testing.T) {
+	assert := assert.New(t)
 	tests := []struct {
 		name        string
 		options     []inventory.RequestOption
@@ -269,28 +285,20 @@ func TestInventory(t *testing.T) {
 		},
 	}
 
-	opts := []bricklink.BricklinkOption{
-		bricklink.WithEnv(),
+	serverOpts := testServerParams{
+		UseTestServer: useTestServer,
+		Status:        200,
+		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
 	}
 
-	// comment this block to test against the real API
-	// TODO Fix test server.
-	// server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	// 	w.WriteHeader(http.StatusOK)
-	// 	w.Write([]byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`))
-	// }))
-	// client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))
-	// if err != nil {
-	// 	t.Errorf("error creating client: %v", err)
-	// }
-	// bricklink.WithClient(client)
-	// end block
-
-	assert := assert.New(t)
-	bricklink, err := bricklink.New(opts...)
+	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
+	if closeFn != nil {
+		defer closeFn()
+	}
+
 	inv := inventory.New(*bricklink)
 
 	for _, tt := range tests {
@@ -387,4 +395,326 @@ func TestInventory(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestOrders is a set of basic tests for the Bricklink Order System endpoints.
+// To run this test, you must have an active Bricklink store or run the mocker server.
+func TestOrders(t *testing.T) {
+	assert := assert.New(t)
+
+	tests := []struct {
+		name    string
+		options []orders.RequestOption
+		member  string
+		want    string
+	}{
+		{
+			name:    "orders test",
+			member:  "deaddrop",
+			options: []orders.RequestOption{},
+		},
+	}
+
+	serverOpts := testServerParams{
+		UseTestServer: useTestServer,
+		Status:        200,
+		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
+	}
+
+	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+	if closeFn != nil {
+		defer closeFn()
+	}
+
+	ord, err := orders.New(*bricklink)
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+	if len(ord.ShippingMethods) == 0 {
+		assert.FailNow("no shipping methods found")
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// get filed orders
+			filed, err := ord.GetOrderHeaders(orders.WithFiled(true), orders.WithExcludeStatus(orders.StatusPurged))
+			if err != nil {
+				assert.Failf("error retrieving filed orders:", "%s", err.Error())
+				t.SkipNow()
+			}
+			if !assert.NotEqualf(0, len(filed), "no filed orders found") {
+				t.SkipNow()
+			}
+
+			// get unfiled orders
+			unfiled, err := ord.GetOrderHeaders(orders.WithExcludeStatus(orders.StatusPurged))
+			if err != nil {
+				assert.Failf("error retrieving unfiled orders:", "%s", err.Error())
+				t.SkipNow()
+			}
+			if !assert.NotEqual(t, 0, len(unfiled), "no unfiled orders found") {
+				t.SkipNow()
+			}
+
+			// if both filed and unfiled orders are found, make sure the lists don't match
+			if !assert.NotEqualf(
+				filed[0].PrimaryKey(),
+				unfiled[0].PrimaryKey(),
+				"expected different order ids; got %s", filed[0].PrimaryKey(),
+			) {
+				t.SkipNow()
+			}
+
+			// if no orders, stop. Otherwise, save an order to test against.
+			original, err := ord.GetOrderHeader(pendingOrderID)
+			if err != nil {
+				assert.Failf("error getting order", "%d: %s", pendingOrderID, err.Error())
+				t.SkipNow()
+			}
+
+			// get order
+			get, err := ord.GetOrderHeader(original.PrimaryKey())
+			if err != nil {
+				assert.Failf("error getting order", " %d:", original.PrimaryKey(), "%s", err.Error())
+				t.SkipNow()
+			}
+			assert.Equalf(original.PrimaryKey(), get.PrimaryKey(), "expected order %d to match original", original.PrimaryKey())
+
+			// get order items
+			items, err := ord.GetOrderItems(original.PrimaryKey())
+			if err != nil {
+				assert.Failf("error getting order items for order", " %d: %s", original.PrimaryKey(), err.Error())
+				t.SkipNow()
+			}
+			assert.GreaterOrEqualf(len(items), 1, "expected at least 1 order item; got %d", len(items))
+
+			// get order messages
+			messages, err := ord.GetOrderMessages(original.PrimaryKey())
+			if err != nil {
+				assert.Failf("error getting order messages for order", " %d: %s", original.PrimaryKey(), err.Error())
+				t.SkipNow()
+			}
+			t.Logf("found %d messages for order %d", len(messages), original.PrimaryKey())
+
+			// get order feedback
+			feedbacks, err := ord.GetOrderFeedback(original.PrimaryKey())
+			if err != nil {
+				assert.Failf("error getting order feedback for order", " %d: %s", original.PrimaryKey(), err.Error())
+				t.SkipNow()
+			}
+			if len(feedbacks) != 0 {
+				feedback := feedbacks[0]
+				t.Logf("found %s feedback for order %d", feedback.Rating, original.PrimaryKey())
+			}
+
+			// Generate a random remark to avoid mucking up existing orders.
+			remark := "TEST " + util.RandomString(16, bricklink.Rand)
+
+			// get member note
+			member := original.BuyerName
+			note, err := ord.GetMemberNote(member)
+			if err != nil {
+				assert.Failf("error getting note for member", " %s: %s", member, err.Error())
+				t.SkipNow()
+			}
+			if !assert.NotNil(note, "expected member note to be non-nil") {
+				t.SkipNow()
+			}
+
+			// set member note
+			oldNote := note.Note
+			note.Note += remark
+			newNote, err := ord.UpsertMemberNote(*note)
+			if err != nil {
+				assert.Failf("error setting member note for member", " %s: %s", member, err.Error())
+				t.SkipNow()
+			}
+			assert.Equalf(note.Note, newNote.Note, "expected member note to be updated %s", oldNote)
+
+			// revert member note
+			note.Note = oldNote
+			_, err = ord.UpsertMemberNote(*note)
+			if err != nil {
+				assert.Failf("error reverting member note for member", " %s: %s", member, err.Error())
+			}
+
+			// get member ratings
+			ratings, err := ord.GetMemberRatings(tt.member)
+			if err != nil {
+				assert.Failf("error getting member ratings for member", " %s: %s", tt.member, err.Error())
+				t.SkipNow()
+			}
+			if !assert.NotNil(ratings, "ratings response is unexpectly nil") {
+				t.SkipNow()
+			}
+			t.Logf("found %d ratings for member %s",
+				ratings.Rating.Complaints+ratings.Rating.Neutrals+ratings.Rating.Praises,
+				tt.member)
+		})
+	}
+}
+
+func TestOrders_Updating(t *testing.T) {
+	if pendingOrderID == 0 {
+		t.SkipNow()
+	}
+	assert := assert.New(t)
+
+	serverOpts := testServerParams{
+		UseTestServer: useTestServer,
+		Status:        200,
+		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
+	}
+
+	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+	if closeFn != nil {
+		defer closeFn()
+	}
+
+	ord, err := orders.New(*bricklink)
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+
+	oh, err := ord.GetOrderHeader(pendingOrderID)
+	if err != nil {
+		assert.Failf("error getting order header", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+	if oh == nil {
+		assert.FailNowf("error getting order", " %d: %s", pendingOrderID, "order not found")
+		t.SkipNow()
+	}
+	original := *oh
+
+	rnd := " " + util.RandomString(16, bricklink.Rand) // update order
+	remarks := original.Remarks
+
+	// update order header
+	oh.Remarks = remarks + rnd
+	ohupdate, err := ord.UpdateOrder(*oh)
+	if err != nil {
+		assert.Failf("error updating order", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+	if ohupdate == nil {
+		assert.FailNowf("nil error received. Expected order resource for", " %d.", pendingOrderID)
+		t.SkipNow()
+	}
+	if ohupdate.Remarks == remarks {
+		assert.FailNowf("order remarks not updated", "expected %s; got %s", oh.Remarks, ohupdate.Remarks)
+		t.SkipNow()
+	}
+
+	// Revert changes
+	oh.Remarks = remarks
+	_, err = ord.UpdateOrder(*oh)
+	if err != nil {
+		assert.Failf("error reverting remarks", " %s: %s", pendingOrderID, err.Error())
+	}
+
+	// check to be sure no unexpected changes occurred
+	// Get order, compare to original.
+	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
+	if err != nil {
+		assert.Failf("error retrieving order after setting remarks", " %s: %s", pendingOrderID, err.Error())
+	}
+	if !reflect.DeepEqual(oh, ohupdate) {
+		assert.Failf("order not reverted", "expected\n%+v\n; got\n%+v\n", oh, ohupdate)
+		t.SkipNow()
+	}
+
+	// update payment status
+	payment := original.Payment.Status
+	p := orders.PaymentStatusClearing
+	if payment == p.String() {
+		p = orders.PaymentStatusReceived
+	}
+	err = ord.UpdatePaymentStatus(pendingOrderID, p)
+	if err != nil {
+		assert.Failf("error updating payment status for order", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+	// Get order, compare to original.
+	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
+	if err != nil {
+		assert.Failf("error retrieving order after setting payment status", " %s: %s", pendingOrderID, err.Error())
+	}
+	assert.Equalf(p, ohupdate.Status, "expected order status unchanged. Wanted %s, got %s", original.Status, ohupdate.Status)
+
+	// Revert changes
+	oh.Payment.Status = payment
+	_, err = ord.UpdateOrder(*oh)
+	if err != nil {
+		assert.Failf("error reverting payment status", " %s: %s", pendingOrderID, err.Error())
+	}
+
+	// check to be sure no unexpected changes occurred
+	if !reflect.DeepEqual(oh, ohupdate) {
+		assert.Failf("order not reverted", "expected\n%+v\n; got\n%+v\n", oh, ohupdate)
+		t.SkipNow()
+	}
+
+	// update order status
+	status := oh.Status
+	s := orders.StatusPending
+	if status == s.String() {
+		s = orders.StatusProcessing
+	}
+	err = ord.UpdateOrderStatus(pendingOrderID, s)
+	if err != nil {
+		assert.Failf("error updating order status for order", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
+	if err != nil {
+		assert.Failf("error retrieving order after setting payment status", " %s: %s", pendingOrderID, err.Error())
+	}
+	if ohupdate.Status != oh.Status {
+		assert.Failf("order status not updated", "expected %s; got %s", oh.Status, ohupdate.Status)
+		t.SkipNow()
+	}
+
+	// Revert changes
+	oh.Status = status
+	err = ord.UpdateOrderStatus(pendingOrderID, s)
+	if err != nil {
+		assert.Failf("error reverting order status", " %s: %s", pendingOrderID, err.Error())
+	}
+
+	// check to be sure no unexpected changes occurred
+	// Get order, compare to original.
+	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
+	if err != nil {
+		assert.Failf("error retrieving reverted order", " %s: %s", pendingOrderID, err.Error())
+	}
+	if !reflect.DeepEqual(oh, ohupdate) {
+		assert.Failf("order not reverted", "expected\n%+v\n; got\n%+v\n", oh, ohupdate)
+		t.SkipNow()
+	}
+}
+
+func newBricklink(serverOpts *testServerParams, opts ...bricklink.BricklinkOption) (*bricklink.Bricklink, func(), error) {
+	var closeFn func()
+	if serverOpts != nil && serverOpts.UseTestServer {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(serverOpts.Status)
+			w.Write(serverOpts.Response)
+		}))
+		closeFn = func() { server.Close() }
+		client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))
+		if err != nil {
+			return nil, closeFn, err
+		}
+		opts = append(opts, bricklink.WithHTTPClient(client))
+	}
+
+	bricklink, err := bricklink.New(opts...)
+	return bricklink, closeFn, err
 }

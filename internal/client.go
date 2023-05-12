@@ -4,12 +4,12 @@ import (
 	"net/http"
 )
 
-type Client interface {
+type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
 type client struct {
-	HTTP Client
+	HTTP HTTPClient
 }
 
 func (c *client) Do(req *http.Request) (*http.Response, error) {
@@ -31,13 +31,13 @@ func (c *client) withOpts(opts []ClientOption) {
 	}
 }
 
-func WithHTTPClient(c Client) ClientOption {
+func WithHTTPClient(c HTTPClient) ClientOption {
 	return func(opts *client) {
 		opts.HTTP = c
 	}
 }
 
-func NewClient(opts ...ClientOption) (Client, error) {
+func NewClient(opts ...ClientOption) (HTTPClient, error) {
 	c := &client{
 		HTTP: http.DefaultClient,
 	}

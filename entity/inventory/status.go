@@ -3,7 +3,8 @@ package inventory
 type Status int
 
 const (
-	StatusAvailable Status = iota
+	StatusUndefined Status = iota
+	StatusAvailable
 	StatusUnavailable
 	StatusStockRoomA
 	StatusStockRoomB
@@ -24,7 +25,7 @@ func (s Status) String() string {
 	case StatusStockRoomC:
 		return "C"
 	case StatusReserved:
-		return "D"
+		return "R"
 	default:
 		return ""
 	}
