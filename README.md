@@ -1,11 +1,11 @@
 # go-bricklink-api
 ## Golang Bricklink API Wrapper
 
-This package implements Bricklink API v3.0. 
+This package implements a wrapper for the Bricklink API v3.0. 
 
 It is a work in progress and is not yet complete.
 
-It comprises three packages that represent broad areas of the API.
+There are three packages that represent broad areas of the API.
 
  - Reference API: The Bricklink catalog of items, colors, and categories. These are not editable resources.
    - Catalog Items

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -18,8 +19,8 @@ import (
 )
 
 // Set this to a pending order to test endpoints that can update the order.
-var pendingOrderID = 22132848
-var useTestServer = false
+var pendingOrderID = 0
+var useTestServer = true
 
 type testServerParams struct {
 	UseTestServer bool
@@ -576,10 +577,6 @@ func TestOrders_Updating(t *testing.T) {
 		defer closeFn()
 	}
 
-	if err != nil {
-		assert.FailNow(err.Error())
-	}
-
 	ord, err := orders.New(*bricklink)
 	if err != nil {
 		assert.FailNow(err.Error())
@@ -587,16 +584,17 @@ func TestOrders_Updating(t *testing.T) {
 
 	oh, err := ord.GetOrderHeader(pendingOrderID)
 	if err != nil {
-		assert.Failf("error getting feedback for order", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error getting order header", " %s: %s", pendingOrderID, err.Error())
 		t.SkipNow()
 	}
 	if oh == nil {
 		assert.FailNowf("error getting order", " %d: %s", pendingOrderID, "order not found")
 		t.SkipNow()
 	}
+	original := *oh
 
 	rnd := " " + util.RandomString(16, bricklink.Rand) // update order
-	remarks := oh.Remarks
+	remarks := original.Remarks
 
 	// update order header
 	oh.Remarks = remarks + rnd
@@ -609,57 +607,85 @@ func TestOrders_Updating(t *testing.T) {
 		assert.FailNowf("nil error received. Expected order resource for", " %d.", pendingOrderID)
 		t.SkipNow()
 	}
-	if ohupdate.Remarks != oh.Remarks {
-		assert.FailNowf("order not updated", "expected %S; got %s", oh.Remarks, ohupdate.Remarks)
+	if ohupdate.Remarks == remarks {
+		assert.FailNowf("order remarks not updated", "expected %s; got %s", oh.Remarks, ohupdate.Remarks)
+		t.SkipNow()
+	}
+
+	// Revert changes
+	oh.Remarks = remarks
+	_, err = ord.UpdateOrder(*oh)
+	if err != nil {
+		assert.Failf("error reverting remarks", " %s: %s", pendingOrderID, err.Error())
+	}
+
+	// check to be sure no unexpected changes occurred
+	// Get order, compare to original.
+	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
+	if err != nil {
+		assert.Failf("error retrieving order after setting remarks", " %s: %s", pendingOrderID, err.Error())
+	}
+	if !reflect.DeepEqual(oh, ohupdate) {
+		assert.Failf("order not reverted", "expected\n%+v\n; got\n%+v\n", oh, ohupdate)
 		t.SkipNow()
 	}
 
 	// update payment status
-	payment := oh.Payment.Status
-	p := orders.PaymentStatusBounced
+	payment := original.Payment.Status
+	p := orders.PaymentStatusClearing
 	if payment == p.String() {
-		p = orders.PaymentStatusNone
+		p = orders.PaymentStatusReceived
 	}
 	err = ord.UpdatePaymentStatus(pendingOrderID, p)
 	if err != nil {
 		assert.Failf("error updating payment status for order", " %s: %s", pendingOrderID, err.Error())
 		t.SkipNow()
 	}
+	// Get order, compare to original.
+	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
+	if err != nil {
+		assert.Failf("error retrieving order after setting payment status", " %s: %s", pendingOrderID, err.Error())
+	}
+	assert.Equalf(p, ohupdate.Status, "expected order status unchanged. Wanted %s, got %s", original.Status, ohupdate.Status)
+
+	// Revert changes
+	oh.Payment.Status = payment
+	_, err = ord.UpdateOrder(*oh)
+	if err != nil {
+		assert.Failf("error reverting payment status", " %s: %s", pendingOrderID, err.Error())
+	}
+
+	// check to be sure no unexpected changes occurred
+	if !reflect.DeepEqual(oh, ohupdate) {
+		assert.Failf("order not reverted", "expected\n%+v\n; got\n%+v\n", oh, ohupdate)
+		t.SkipNow()
+	}
 
 	// update order status
 	status := oh.Status
-	s := orders.StatusCompleted
+	s := orders.StatusPending
 	if status == s.String() {
-		s = orders.StatusPacked
+		s = orders.StatusProcessing
 	}
 	err = ord.UpdateOrderStatus(pendingOrderID, s)
 	if err != nil {
 		assert.Failf("error updating order status for order", " %s: %s", pendingOrderID, err.Error())
 		t.SkipNow()
 	}
+	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
+	if err != nil {
+		assert.Failf("error retrieving order after setting payment status", " %s: %s", pendingOrderID, err.Error())
+	}
+	if ohupdate.Status != oh.Status {
+		assert.Failf("order status not updated", "expected %s; got %s", oh.Status, ohupdate.Status)
+		t.SkipNow()
+	}
 
-	// revert changes
-	// undo order status from original
+	// Revert changes
 	oh.Status = status
 	err = ord.UpdateOrderStatus(pendingOrderID, s)
 	if err != nil {
-		assert.Failf("error reverting order status for order", " %s: %s", pendingOrderID, err.Error())
-		t.SkipNow()
-	}
-	// undo payment status from original
-	oh.Payment.Status = payment
-	err = ord.UpdatePaymentStatus(pendingOrderID, p)
-	if err != nil {
-		assert.Failf("error reverting payment status for order", " %s: %s", pendingOrderID, err.Error())
-		t.SkipNow()
-	}
-
-	// undo order update from original
-	oh.Remarks = remarks
-	_, err = ord.UpdateOrder(*oh)
-	if err != nil {
-		assert.Failf("error reverting order", " %s: %s", pendingOrderID, err.Error())
-		t.SkipNow()
+		assert.Failf("error reverting order status", " %s: %s", pendingOrderID, err.Error())
 	}
 
 	// check to be sure no unexpected changes occurred
@@ -667,10 +693,9 @@ func TestOrders_Updating(t *testing.T) {
 	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
 	if err != nil {
 		assert.Failf("error retrieving reverted order", " %s: %s", pendingOrderID, err.Error())
-		t.SkipNow()
 	}
-	if oh != ohupdate {
-		assert.FailNowf("order not reverted", "expected %s; got %s", oh.Remarks, ohupdate.Remarks)
+	if !reflect.DeepEqual(oh, ohupdate) {
+		assert.Failf("order not reverted", "expected\n%+v\n; got\n%+v\n", oh, ohupdate)
 		t.SkipNow()
 	}
 }
@@ -687,7 +712,7 @@ func newBricklink(serverOpts *testServerParams, opts ...bricklink.BricklinkOptio
 		if err != nil {
 			return nil, closeFn, err
 		}
-		opts = append(opts, bricklink.WithClient(client))
+		opts = append(opts, bricklink.WithHTTPClient(client))
 	}
 
 	bricklink, err := bricklink.New(opts...)

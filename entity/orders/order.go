@@ -38,7 +38,7 @@ func (o *Orders) UpdateOrderStatus(id int, status OrderStatus) error {
 	ctx, cancel := context.WithTimeout(context.Background(), o.Timeout)
 	defer cancel()
 
-	body := []byte(fmt.Sprintf(statusBody, updateFieldOrderStatus, status))
+	body := []byte(fmt.Sprintf(statusBody, updateFieldOrderStatus, status.String()))
 
 	req, err := o.NewRequestWithContext(ctx, http.MethodPut, fmt.Sprintf(pathUpdateStatus, id), nil, body)
 	if err != nil {
@@ -62,7 +62,7 @@ func (o *Orders) UpdatePaymentStatus(id int, status PaymentStatus) error {
 	ctx, cancel := context.WithTimeout(context.Background(), o.Timeout)
 	defer cancel()
 
-	body := []byte(fmt.Sprintf(statusBody, updateFieldPaymentStatus, status))
+	body := []byte(fmt.Sprintf(statusBody, updateFieldPaymentStatus, status.String()))
 
 	req, err := o.NewRequestWithContext(ctx, http.MethodPut, fmt.Sprintf(pathUpdatePayment, id), nil, body)
 	if err != nil {

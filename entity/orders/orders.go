@@ -32,6 +32,7 @@ type Orders struct {
 	ShippingMethods map[int]ShippingMethod
 }
 
+// New creates a new Orders instance.
 func New(bl bricklink.Bricklink) (*Orders, error) {
 	o := Orders{}
 	o.Bricklink = bl

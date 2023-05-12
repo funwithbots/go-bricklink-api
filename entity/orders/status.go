@@ -28,7 +28,7 @@ const (
 )
 
 const (
-	statusBody               = `{"status":"%s", "value":"%s"}`
+	statusBody               = `{"field":"%s", "value":"%s"}`
 	updateFieldOrderStatus   = "status"
 	updateFieldPaymentStatus = "payment_status"
 )
