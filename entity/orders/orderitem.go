@@ -55,7 +55,7 @@ func (o *Orders) GetOrderItems(id int) ([]Item, error) {
 		return nil, err
 	}
 
-	// may be nested because multiple batches may be returned
+	// nested because multiple batches may be returned
 	var out [][]Item
 	if err := internal.Parse(res.Body, &out); err != nil {
 		return nil, err

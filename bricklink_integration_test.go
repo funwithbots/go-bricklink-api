@@ -515,26 +515,22 @@ func TestOrders(t *testing.T) {
 				t.Logf("found %s feedback for order %d", feedback.Rating, original.PrimaryKey())
 			}
 
-			/* Broken AFAICT
 			// Generate a random remark to avoid mucking up existing orders.
-			// remark := "TEST " + util.RandomString(16, bricklink.Rand)
+			remark := "TEST " + util.RandomString(16, bricklink.Rand)
 
 			// get member note
 			member := original.BuyerName
 			note, err := ord.GetMemberNote(member)
 			if err != nil {
 				assert.Failf("error getting note for member", " %s: %s", member, err.Error())
-				// t.SkipNow()
+				t.SkipNow()
+			}
+			if !assert.NotNil(note, "expected member note to be non-nil") {
+				t.SkipNow()
 			}
 
 			// set member note
-			var oldNote string
-			if note == nil {
-				note = &orders.Note{
-					UserName: "deaddrop",
-				}
-			}
-			oldNote = note.Note
+			oldNote := note.Note
 			note.Note += remark
 			newNote, err := ord.UpsertMemberNote(*note)
 			if err != nil {
@@ -546,7 +542,9 @@ func TestOrders(t *testing.T) {
 			// revert member note
 			note.Note = oldNote
 			_, err = ord.UpsertMemberNote(*note)
-			*/
+			if err != nil {
+				assert.Failf("error reverting member note for member", " %s: %s", member, err.Error())
+			}
 
 			// get member ratings
 			ratings, err := ord.GetMemberRatings(tt.member)

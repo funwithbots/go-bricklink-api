@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -41,6 +42,8 @@ func (o *Orders) GetMemberNote(name string) (*Note, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println(req.URL.String())
 
 	res, err := o.Client.Do(req)
 	if err != nil {

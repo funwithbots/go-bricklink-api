@@ -41,9 +41,9 @@ package main
 import (
    "fmt"
    bricklink "github.com/bricklink/go-bricklink-api"
-   "github.com/bricklink/go-bricklink-api/inventory"
-   "github.com/bricklink/go-bricklink-api/orders"
-   "github.com/bricklink/go-bricklink-api/reference"
+   "github.com/funwithbots/go-bricklink-api/inventory"
+   "github.com/funwithbots/go-bricklink-api/orders"
+   "github.com/funwithbots/go-bricklink-api/reference"
 )
 
 func main() { 
