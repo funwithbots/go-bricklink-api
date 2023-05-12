@@ -11,6 +11,7 @@ import (
 )
 
 type Item struct {
+	BatchID            int            `json:"-"`
 	InventoryID        int            `json:"inventory_id"`
 	Item               reference.Item `json:"item"`
 	ColorID            int            `json:"color_id"`
@@ -25,6 +26,7 @@ type Item struct {
 	DispCurrencyCode   string         `json:"disp_currency_code"`
 	Description        string         `json:"description"`
 	Remarks            string         `json:"remarks"`
+	Weight             string         `json:"weight"`
 }
 
 func (it Item) PrimaryKey() int {
@@ -53,10 +55,19 @@ func (o *Orders) GetOrderItems(id int) ([]Item, error) {
 		return nil, err
 	}
 
-	var out []Item
+	// may be nested because multiple batches may be returned
+	var out [][]Item
 	if err := internal.Parse(res.Body, &out); err != nil {
 		return nil, err
 	}
 
-	return out, nil
+	// flatten the batches
+	items := make([]Item, 0)
+	for i, v := range out {
+		for _, vv := range v {
+			vv.BatchID = i
+			items = append(items, vv)
+		}
+	}
+	return items, nil
 }

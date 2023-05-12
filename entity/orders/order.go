@@ -10,8 +10,10 @@ import (
 
 type Order struct {
 	Header
-	Items    []Item
-	Messages []Message
+	Items            []Item
+	Messages         []Message
+	FeedbackSent     Feedback
+	FeedbackReceived Feedback
 	Problem
 }
 

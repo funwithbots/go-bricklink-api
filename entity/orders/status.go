@@ -24,6 +24,7 @@ const (
 	StatusNRS        // System
 	StatusNSS        // System
 	StatusCancelled  // System
+	StatusPurged
 )
 
 const (
@@ -64,6 +65,8 @@ func (s OrderStatus) String() string {
 		return "nss"
 	case StatusCancelled:
 		return "cancelled"
+	case StatusPurged:
+		return "purged"
 	default:
 		return ""
 	}
@@ -93,6 +96,7 @@ var systemStatuses = map[OrderStatus]interface{}{
 	StatusNRS:       nil,
 	StatusNSS:       nil,
 	StatusCancelled: nil,
+	StatusPurged:    nil,
 }
 
 type PaymentStatus int

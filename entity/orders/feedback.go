@@ -136,8 +136,8 @@ func (o *Orders) GetFeedback(id int) (*Feedback, error) {
 	return &out, nil
 }
 
-// GetOrderFeedback returns the feedback for an order
-func (o *Orders) GetOrderFeedback(id int) (*Feedback, error) {
+// GetOrderFeedback returns the feedback for an order.
+func (o *Orders) GetOrderFeedback(id int) ([]Feedback, error) {
 	if id <= 0 {
 		return nil, fmt.Errorf("a positive value for id is required")
 	}
@@ -155,10 +155,10 @@ func (o *Orders) GetOrderFeedback(id int) (*Feedback, error) {
 		return nil, err
 	}
 
-	var out Feedback
+	var out []Feedback
 	if err := internal.Parse(res.Body, &out); err != nil {
 		return nil, err
 	}
 
-	return &out, nil
+	return out, nil
 }

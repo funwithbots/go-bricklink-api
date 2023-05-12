@@ -15,7 +15,7 @@ const (
 	pathGetMemberRating    = "/members/%s/ratings"
 	pathGetMemberNote      = "/members/%s/notes"
 	pathCreateMemberNote   = "/members/%s/notes"
-	pathUpdateMemberNote   = "/members/%s/notes/"
+	pathUpdateMemberNote   = "/members/%s/notes"
 	pathDeleteMemberNote   = "/members/%s/notes"
 	pathUpdateOrder        = "/orders/%d"
 	pathUpdateStatus       = "/orders/%d/status"
@@ -30,11 +30,14 @@ type Orders struct {
 	ShippingMethods map[int]ShippingMethod
 }
 
-func New(bl bricklink.Bricklink) *Orders {
+func New(bl bricklink.Bricklink) (*Orders, error) {
 	o := Orders{}
 	o.Bricklink = bl
 
-	_ = o.loadShippingMethods()
+	err := o.loadShippingMethods()
+	if err != nil {
+		return nil, err
+	}
 
-	return &o
+	return &o, nil
 }

@@ -1,0 +1,34 @@
+{
+  "meta":{
+    "description":"OK",
+    "message":"OK",
+    "code":200
+  },
+  "data":[
+    [
+      {
+        "inventory_id":349372975,
+        "item":{
+          "no":"30597",
+          "name":"Obscure 100,000th BrickLink Catalog Item",
+          "type":"PART",
+          "category_id":143
+        },
+        "color_id":41,
+        "color_name":"Aqua",
+        "quantity":1,
+        "new_or_used":"N",
+        "unit_price":"0.0100",
+        "description":"Don&#39;t buy this. If you do, you&#39;re just giving me free money. :&#41;",
+        "remarks":"TEST ITEM",
+        "disp_unit_price":"0.0100",
+        "disp_unit_price_final":"0.0100",
+        "unit_price_final":"0.0100",
+        "order_cost":"0.0000",
+        "currency_code":"USD",
+        "disp_currency_code":"USD",
+        "weight":"0.00"
+      }
+    ]
+  ]
+}

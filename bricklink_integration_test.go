@@ -14,6 +14,12 @@ import (
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
+// Set this to a pending order to test endpoints that can update the order.
+var pendingOrderID = 22132848
+
+// Set this to a shipped order to test setting feedback and drive thru.
+var shippedOrderID = 0
+
 // TestReference is a set of basic tests for the Bricklink Catalog and related endpoints.
 func TestReference(t *testing.T) {
 	tests := []struct {
@@ -396,10 +402,12 @@ func TestOrders(t *testing.T) {
 	tests := []struct {
 		name    string
 		options []orders.RequestOption
+		member  string
 		want    string
 	}{
 		{
 			name:    "orders test",
+			member:  "deaddrop",
 			options: []orders.RequestOption{},
 		},
 	}
@@ -426,46 +434,38 @@ func TestOrders(t *testing.T) {
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
-	ord := orders.New(*bricklink)
+	ord, err := orders.New(*bricklink)
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
 	if len(ord.ShippingMethods) == 0 {
 		assert.FailNow("no shipping methods found")
 	}
 
 	for _, tt := range tests {
-		// Generate a random remark to avoid mucking up existing orders.
-		// remark := "TEST " + util.RandomString(16, bricklink.Rand)
-
 		t.Run(tt.name, func(t *testing.T) {
 			// get filed orders
-			filed, err := ord.GetOrderHeaders(orders.WithFiled(true))
+			filed, err := ord.GetOrderHeaders(orders.WithFiled(true), orders.WithExcludeStatus(orders.StatusPurged))
 			if err != nil {
-				assert.Failf("error marshaling inventory item:", "%s", err.Error())
+				assert.Failf("error retrieving filed orders:", "%s", err.Error())
+				t.SkipNow()
+			}
+			if !assert.NotEqualf(0, len(filed), "no filed orders found") {
 				t.SkipNow()
 			}
 
 			// get unfiled orders
-			unfiled, err := ord.GetOrderHeaders()
+			unfiled, err := ord.GetOrderHeaders(orders.WithExcludeStatus(orders.StatusPurged))
 			if err != nil {
-				assert.Failf("error marshaling inventory item:", "%s", err.Error())
+				assert.Failf("error retrieving unfiled orders:", "%s", err.Error())
 				t.SkipNow()
 			}
-
-			// if no orders, stop. Otherwise, save an order to test. Prefer filed order.
-			order := &orders.Header{}
-			if len(unfiled) != 0 {
-				order = &unfiled[0]
-			}
-			if len(filed) != 0 {
-				order = &filed[0]
-			}
-			if order == nil {
-				t.Log("no orders to test")
+			if !assert.NotEqual(t, 0, len(unfiled), "no unfiled orders found") {
 				t.SkipNow()
 			}
-			// original := order
 
 			// if both filed and unfiled orders are found, make sure the lists don't match
-			if len(filed) != 0 && len(unfiled) != 0 && !assert.NotEqualf(
+			if !assert.NotEqualf(
 				filed[0].PrimaryKey(),
 				unfiled[0].PrimaryKey(),
 				"expected different order ids; got %s", filed[0].PrimaryKey(),
@@ -473,27 +473,199 @@ func TestOrders(t *testing.T) {
 				t.SkipNow()
 			}
 
+			// if no orders, stop. Otherwise, save an order to test against.
+			original, err := ord.GetOrderHeader(pendingOrderID)
+			if err != nil {
+				assert.Failf("error getting order", "%d: %s", pendingOrderID, err.Error())
+				t.SkipNow()
+			}
+
 			// get order
+			get, err := ord.GetOrderHeader(original.PrimaryKey())
+			if err != nil {
+				assert.Failf("error getting order", " %d:", original.PrimaryKey(), "%s", err.Error())
+				t.SkipNow()
+			}
+			assert.Equalf(original.PrimaryKey(), get.PrimaryKey(), "expected order %d to match original", original.PrimaryKey())
 
 			// get order items
+			items, err := ord.GetOrderItems(original.PrimaryKey())
+			if err != nil {
+				assert.Failf("error getting order items for order", " %d: %s", original.PrimaryKey(), err.Error())
+				t.SkipNow()
+			}
+			assert.GreaterOrEqualf(len(items), 1, "expected at least 1 order item; got %d", len(items))
 
 			// get order messages
+			messages, err := ord.GetOrderMessages(original.PrimaryKey())
+			if err != nil {
+				assert.Failf("error getting order messages for order", " %d: %s", original.PrimaryKey(), err.Error())
+				t.SkipNow()
+			}
+			t.Logf("found %d messages for order %d", len(messages), original.PrimaryKey())
 
 			// get order feedback
+			feedbacks, err := ord.GetOrderFeedback(original.PrimaryKey())
+			if err != nil {
+				assert.Failf("error getting order feedback for order", " %d: %s", original.PrimaryKey(), err.Error())
+				t.SkipNow()
+			}
+			if len(feedbacks) != 0 {
+				feedback := feedbacks[0]
+				t.Logf("found %s feedback for order %d", feedback.Rating, original.PrimaryKey())
+			}
 
-			// update order
+			/* Broken AFAICT
+			// Generate a random remark to avoid mucking up existing orders.
+			// remark := "TEST " + util.RandomString(16, bricklink.Rand)
 
-			// update payment status
+			// get member note
+			member := original.BuyerName
+			note, err := ord.GetMemberNote(member)
+			if err != nil {
+				assert.Failf("error getting note for member", " %s: %s", member, err.Error())
+				// t.SkipNow()
+			}
 
-			// update order status
+			// set member note
+			var oldNote string
+			if note == nil {
+				note = &orders.Note{
+					UserName: "deaddrop",
+				}
+			}
+			oldNote = note.Note
+			note.Note += remark
+			newNote, err := ord.UpsertMemberNote(*note)
+			if err != nil {
+				assert.Failf("error setting member note for member", " %s: %s", member, err.Error())
+				t.SkipNow()
+			}
+			assert.Equalf(note.Note, newNote.Note, "expected member note to be updated %s", oldNote)
 
-			// revert changes
-			// undo order status from original
-			// undo payment status from original
-			// undo order update from original
+			// revert member note
+			note.Note = oldNote
+			_, err = ord.UpsertMemberNote(*note)
+			*/
 
-			// check to be sure no unexpected changes occurred
-			// Get order, compare to original.
+			// get member ratings
+			ratings, err := ord.GetMemberRatings(tt.member)
+			if err != nil {
+				assert.Failf("error getting member ratings for member", " %s: %s", tt.member, err.Error())
+				t.SkipNow()
+			}
+			if !assert.NotNil(ratings, "ratings response is unexpectly nil") {
+				t.SkipNow()
+			}
+			t.Logf("found %d ratings for member %s",
+				ratings.Rating.Complaints+ratings.Rating.Neutrals+ratings.Rating.Praises,
+				tt.member)
 		})
+	}
+}
+
+func TestOrders_Updating(t *testing.T) {
+	if pendingOrderID == 0 {
+		t.SkipNow()
+	}
+	assert := assert.New(t)
+	bricklink, err := bricklink.New()
+
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+
+	ord, err := orders.New(*bricklink)
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+
+	oh, err := ord.GetOrderHeader(pendingOrderID)
+	if err != nil {
+		assert.Failf("error getting feedback for order", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+	if oh == nil {
+		assert.FailNowf("error getting order", " %d: %s", pendingOrderID, "order not found")
+		t.SkipNow()
+	}
+
+	rnd := " " + util.RandomString(16, bricklink.Rand) // update order
+	remarks := oh.Remarks
+
+	// update order header
+	oh.Remarks = remarks + rnd
+	ohupdate, err := ord.UpdateOrder(*oh)
+	if err != nil {
+		assert.Failf("error updating order", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+	if ohupdate == nil {
+		assert.FailNowf("nil error received. Expected order resource for", " %d.", pendingOrderID)
+		t.SkipNow()
+	}
+	if ohupdate.Remarks != oh.Remarks {
+		assert.FailNowf("order not updated", "expected %S; got %s", oh.Remarks, ohupdate.Remarks)
+		t.SkipNow()
+	}
+
+	// update payment status
+	payment := oh.Payment.Status
+	p := orders.PaymentStatusBounced
+	if payment == p.String() {
+		p = orders.PaymentStatusNone
+	}
+	err = ord.UpdatePaymentStatus(pendingOrderID, p)
+	if err != nil {
+		assert.Failf("error updating payment status for order", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+
+	// update order status
+	status := oh.Status
+	s := orders.StatusCompleted
+	if status == s.String() {
+		s = orders.StatusPacked
+	}
+	err = ord.UpdateOrderStatus(pendingOrderID, s)
+	if err != nil {
+		assert.Failf("error updating order status for order", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+
+	// revert changes
+	// undo order status from original
+	oh.Status = status
+	err = ord.UpdateOrderStatus(pendingOrderID, s)
+	if err != nil {
+		assert.Failf("error reverting order status for order", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+	// undo payment status from original
+	oh.Payment.Status = payment
+	err = ord.UpdatePaymentStatus(pendingOrderID, p)
+	if err != nil {
+		assert.Failf("error reverting payment status for order", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+
+	// undo order update from original
+	oh.Remarks = remarks
+	_, err = ord.UpdateOrder(*oh)
+	if err != nil {
+		assert.Failf("error reverting order", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+
+	// check to be sure no unexpected changes occurred
+	// Get order, compare to original.
+	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
+	if err != nil {
+		assert.Failf("error retrieving reverted order", " %s: %s", pendingOrderID, err.Error())
+		t.SkipNow()
+	}
+	if oh != ohupdate {
+		assert.FailNowf("order not reverted", "expected %s; got %s", oh.Remarks, ohupdate.Remarks)
+		t.SkipNow()
 	}
 }

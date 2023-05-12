@@ -14,10 +14,10 @@ import (
 
 // Note represents a note about a member.
 type Note struct {
-	ID        int       `json:"note_id,omitempty"`
-	UserName  string    `json:"user_name"`
-	Note      string    `json:"note_text"`
-	DateNoted time.Time `json:"date_noted,omitempty"`
+	ID        int        `json:"note_id,omitempty"`
+	UserName  string     `json:"user_name"`
+	Note      string     `json:"note_text"`
+	DateNoted *time.Time `json:"date_noted,omitempty"`
 }
 
 func (n *Note) PrimaryKey() int {
@@ -60,6 +60,8 @@ func (o *Orders) UpsertMemberNote(note Note) (*Note, error) {
 	if note.UserName == "" {
 		return nil, util.ErrInvalidArgument
 	}
+	note.DateNoted = nil
+
 	if note.ID == 0 {
 		return o.createMemberNote(note)
 	}

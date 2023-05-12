@@ -22,7 +22,11 @@ type Member struct {
 type MemberRating struct {
 	UserName string `json:"user_name"`
 
-	Rating []Feedback `json:"rating"`
+	Rating struct {
+		Complaints int `json:"COMPLAINT"`
+		Neutrals   int `json:"NEUTRAL"`
+		Praises    int `json:"PRAISE"`
+	} `json:"rating"`
 }
 
 func (m *Member) PrimaryKey() int {
@@ -36,7 +40,7 @@ func (m *Member) Label() entity.Label {
 }
 
 // GetMemberRatings returns the details feedback ratings for a specific member.
-func (o *Orders) GetMemberRatings(name string) ([]MemberRating, error) {
+func (o *Orders) GetMemberRatings(name string) (*MemberRating, error) {
 	if name == "" {
 		return nil, util.ErrInvalidArgument
 	}
@@ -54,10 +58,10 @@ func (o *Orders) GetMemberRatings(name string) ([]MemberRating, error) {
 		return nil, err
 	}
 
-	var out []MemberRating
+	var out MemberRating
 	if err := internal.Parse(res.Body, &out); err != nil {
 		return nil, err
 	}
 
-	return out, nil
+	return &out, nil
 }

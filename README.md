@@ -17,7 +17,7 @@ It comprises three packages that represent broad areas of the API.
    - Supersets
    - Subsets
  - Order API: The Bricklink order system.
-   - [Orders]()
+   - Orders
    - Order Items
    - Feedback
    - Members
@@ -41,10 +41,9 @@ package main
 import (
    "fmt"
    bricklink "github.com/bricklink/go-bricklink-api"
-   "github.com/bricklink/go-bricklink-api/reference"
    "github.com/bricklink/go-bricklink-api/inventory"
    "github.com/bricklink/go-bricklink-api/orders"
-   "github.com/funwithbots/go-bricklink-api/internal/oauth"
+   "github.com/bricklink/go-bricklink-api/reference"
 )
 
 func main() { 
