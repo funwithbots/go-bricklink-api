@@ -14,7 +14,6 @@ type Order struct {
 	Messages         []Message
 	FeedbackSent     Feedback
 	FeedbackReceived Feedback
-	Problem
 }
 
 func (o Order) PrimaryKey() int {
@@ -23,6 +22,66 @@ func (o Order) PrimaryKey() int {
 
 func (o Order) Label() entity.Label {
 	return entity.LabelOrder
+}
+
+// GetOrder is a convenience method that returns everything about an order at once.
+// If the first call succeeds, this method requires 4 API calls.
+// Errors for messages, items, and feedback are logged as messages in the returned order.
+// Errors will have 'Error' as the subject.
+func (o Orders) GetOrder(id int) (*Order, error) {
+	if id <= 0 {
+		return nil, fmt.Errorf("a positive value for id is required")
+	}
+
+	header, err := o.GetOrderHeader(id)
+	if err != nil {
+		return nil, fmt.Errorf("order %d not found: %s", id, err.Error())
+	}
+
+	order := Order{
+		Header: *header,
+	}
+
+	order.Items, err = o.GetOrderItems(id)
+	if err != nil {
+		order.Messages = append(order.Messages, Message{
+			Subject: "Error",
+			Body:    fmt.Sprintf("Error retrieving order items: %s", err.Error()),
+		})
+	}
+
+	feedback, err := o.GetOrderFeedback(id)
+	if err != nil {
+		order.Messages = append(order.Messages, Message{
+			Subject: "Error",
+			Body:    fmt.Sprintf("Error retrieving order feedback: %s", err.Error()),
+		})
+	}
+	for _, v := range feedback {
+		switch v.From {
+		case order.BuyerName:
+			order.FeedbackReceived = v
+		case order.SellerName:
+			order.FeedbackSent = v
+		default:
+			order.Messages = append(order.Messages, Message{
+				Subject: fmt.Sprintf("Feedback to %s", v.To),
+				Body:    fmt.Sprintf("Feedback from %s: %s", v.From, v.Comment),
+			})
+		}
+	}
+
+	messages, err := o.GetOrderMessages(id)
+	if err != nil {
+		order.Messages = append(order.Messages, Message{
+			Subject: "Error",
+			Body:    fmt.Sprintf("Error retrieving order messages: %s", err.Error()),
+		})
+	} else {
+		order.Messages = append(order.Messages, messages...)
+	}
+
+	return &order, nil
 }
 
 // UpdateOrderStatus updates the order status for an order.
