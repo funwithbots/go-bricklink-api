@@ -700,6 +700,60 @@ func TestOrders_Updating(t *testing.T) {
 	}
 }
 
+func TestGetOrder(t *testing.T) {
+	assert := assert.New(t)
+
+	tests := []struct {
+		name    string
+		OrderID int
+	}{
+		{
+			name:    "orders test",
+			OrderID: 20712769,
+		},
+	}
+
+	serverOpts := testServerParams{
+		UseTestServer: useTestServer,
+		Status:        200,
+		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
+	}
+
+	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+	if closeFn != nil {
+		defer closeFn()
+	}
+
+	ord, err := orders.New(*bricklink)
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+	if len(ord.ShippingMethods) == 0 {
+		assert.FailNow("no shipping methods found")
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// get filed orders
+			order, err := ord.GetOrder(tt.OrderID)
+			if err != nil {
+				assert.Failf("error retrieving order %d:", "%s", tt.OrderID, err.Error())
+				t.SkipNow()
+			}
+			assert.Equalf(tt.OrderID, order.ID, "expected order %d; got %d", tt.OrderID, order.ID)
+			assert.Greaterf(len(order.Items), 0, "expected order %d to have items", tt.OrderID)
+			for _, m := range order.Messages {
+				if m.Subject == "Error" {
+					assert.Failf("error message found", " %s", m.Body)
+				}
+			}
+		})
+	}
+}
+
 func newBricklink(serverOpts *testServerParams, opts ...bricklink.BricklinkOption) (*bricklink.Bricklink, func(), error) {
 	var closeFn func()
 	if serverOpts != nil && serverOpts.UseTestServer {

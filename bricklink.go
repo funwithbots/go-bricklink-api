@@ -24,7 +24,7 @@ const (
 	defaultBaseURL        = "https://api.bricklink.com/api/store/v1"
 )
 
-// Bricklink is the client for the Bricklink API.
+// Bricklink is a wrapper for the Bricklink API.
 type Bricklink struct {
 	Client internal.HTTPClient
 

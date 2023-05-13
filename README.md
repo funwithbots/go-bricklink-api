@@ -27,7 +27,7 @@ There are three packages that represent broad areas of the API.
    - Inventories
    - Inventory Items
 
-The API packages share an HTTP client which is an implementation to allow mocking.
+The API packages share an implementation of the HTTP client to allow mocking.
 
 Each API Resource is available as a separate package with one or more structs and methods to access the API. Each Resource Representation in the API has its own struct. API methods are members of the package.
 
