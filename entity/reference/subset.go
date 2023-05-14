@@ -10,7 +10,7 @@ import (
 	"github.com/funwithbots/go-bricklink-api/internal"
 )
 
-type Subsets []SubsetItem
+type Subset []SubsetItem
 
 type SubsetItem struct {
 	MatchNo int `json:"match_no"` // 0 value are unique parts with no alternates or counterparts
@@ -25,16 +25,16 @@ type SubsetItem struct {
 }
 
 // PrimaryKey isn't meaningful for this entity.
-func (sub *Subsets) PrimaryKey() int {
+func (sub *Subset) PrimaryKey() int {
 	return 0
 }
 
-func (sub *Subsets) Label() entity.Label {
+func (sub *Subset) Label() entity.Label {
 	return entity.LabelSubset
 }
 
 // GetSubset returns a list of items that make up the item.
-func (r *Reference) GetSubsets(options ...RequestOption) (Subsets, error) {
+func (r *Reference) GetSubset(options ...RequestOption) (Subset, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
 	if opts.itemNo == "" {
