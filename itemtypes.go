@@ -1,65 +1,27 @@
 package go_bricklink_api
 
-type ItemType int8
+type ItemType string
 
 const (
-	ItemTypePart ItemType = iota
-	ItemTypeMinifig
-	ItemTypeGear
-	ItemTypeBook
-	ItemTypeCatalog
-	ItemTypeInstruction
-	ItemTypeSet
-	ItemTypeOriginalBox
-	ItemTypeUnsortedLot
+	ItemTypePart        ItemType = "P"
+	ItemTypeMinifig     ItemType = "M"
+	ItemTypeGear        ItemType = "G"
+	ItemTypeBook        ItemType = "B"
+	ItemTypeCatalog     ItemType = "C"
+	ItemTypeInstruction ItemType = "I"
+	ItemTypeSet         ItemType = "S"
+	ItemTypeOriginalBox ItemType = "O"
+	ItemTypeUnsortedLot ItemType = "L"
 )
 
-func (it ItemType) Label() string {
-	switch it {
-	case ItemTypePart:
-		return "part"
-	case ItemTypeMinifig:
-		return "minifig"
-	case ItemTypeGear:
-		return "gear"
-	case ItemTypeBook:
-		return "book"
-	case ItemTypeCatalog:
-		return "catalog"
-	case ItemTypeInstruction:
-		return "instruction"
-	case ItemTypeSet:
-		return "set"
-	case ItemTypeOriginalBox:
-		return "original_box"
-	case ItemTypeUnsortedLot:
-		return "unsorted_lot"
-	default:
-		return ""
-	}
-}
-
-func (it ItemType) String() string {
-	switch it {
-	case ItemTypePart:
-		return "p"
-	case ItemTypeMinifig:
-		return "m"
-	case ItemTypeGear:
-		return "g"
-	case ItemTypeBook:
-		return "b"
-	case ItemTypeCatalog:
-		return "c"
-	case ItemTypeInstruction:
-		return "i"
-	case ItemTypeSet:
-		return "s"
-	case ItemTypeOriginalBox:
-		return "o"
-	case ItemTypeUnsortedLot:
-		return "l"
-	default:
-		return ""
-	}
+var ItemTypeMap = map[ItemType]string{
+	ItemTypePart:        "part",
+	ItemTypeMinifig:     "minifig",
+	ItemTypeBook:        "book",
+	ItemTypeCatalog:     "catalog",
+	ItemTypeInstruction: "instruction",
+	ItemTypeSet:         "set",
+	ItemTypeOriginalBox: "original_box",
+	ItemTypeGear:        "gear",
+	ItemTypeUnsortedLot: "unsorted_lot",
 }

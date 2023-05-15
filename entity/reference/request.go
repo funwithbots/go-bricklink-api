@@ -48,12 +48,12 @@ func (ro *requestOptions) toQuery(target queryTarget) (map[string]string, error)
 		}
 	case queryTargetSubsets:
 		if ro.colorID != nil {
-			if ro.itemType != bl.ItemTypePart.Label() {
+			if ro.itemType != bl.ItemTypeMap[bl.ItemTypePart] {
 				return nil, fmt.Errorf("color_id is only valid for parts")
 			}
 			params["color_id"] = strconv.Itoa(*ro.colorID)
 		}
-		if ro.itemType == bl.ItemTypeSet.Label() {
+		if ro.itemType == bl.ItemTypeMap[bl.ItemTypeSet] {
 			if ro.box != nil {
 				params["box"] = fmt.Sprintf("%t", *ro.box)
 			}
@@ -72,7 +72,7 @@ func (ro *requestOptions) toQuery(target queryTarget) (map[string]string, error)
 			return nil, fmt.Errorf("country_code and region must be set together")
 		}
 		if ro.colorID != nil {
-			if ro.itemType != bl.ItemTypePart.Label() {
+			if ro.itemType != bl.ItemTypeMap[bl.ItemTypePart] {
 				return nil, fmt.Errorf("color_id is only valid for parts")
 			}
 			params["color_id"] = strconv.Itoa(*ro.colorID)
@@ -107,7 +107,7 @@ func (ro *requestOptions) withOpts(opts []RequestOption) {
 
 func WithItemType(typ bl.ItemType) RequestOption {
 	return func(opts *requestOptions) {
-		opts.itemType = typ.Label()
+		opts.itemType = bl.ItemTypeMap[typ]
 	}
 }
 

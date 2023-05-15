@@ -33,7 +33,7 @@ func (m Mapping) Label() entity.Label {
 func (r *Reference) GetElementID(options ...RequestOption) ([]Mapping, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
-	if opts.itemType != bl.ItemTypePart.Label() {
+	if opts.itemType != bl.ItemTypeMap[bl.ItemTypePart] {
 		return nil, errors.New("item type must be part")
 	}
 	if opts.itemNo == "" {

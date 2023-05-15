@@ -147,7 +147,7 @@ func TestReference(t *testing.T) {
 			}
 			if item != nil {
 				assert.Equal(tt.want, item.ID)
-				assert.Equal(strings.ToUpper(tt.itemType.Label()), item.Type)
+				assert.Equal(strings.ToUpper(bl.ItemTypeMap[tt.itemType]), item.Type)
 			}
 
 			var elementID string

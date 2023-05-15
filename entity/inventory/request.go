@@ -70,13 +70,13 @@ func (ro *requestOptions) withOpts(opts []RequestOption) {
 
 func WithIncludeItemType(itemType bl.ItemType) RequestOption {
 	return func(opts *requestOptions) {
-		opts.itemType = append(opts.itemType, itemType.Label())
+		opts.itemType = append(opts.itemType, bl.ItemTypeMap[itemType])
 	}
 }
 
 func WithExcludeItemType(itemType bl.ItemType) RequestOption {
 	return func(opts *requestOptions) {
-		opts.itemType = append(opts.itemType, fmt.Sprintf("-%s", itemType.Label()))
+		opts.itemType = append(opts.itemType, fmt.Sprintf("-%s", bl.ItemTypeMap[itemType]))
 	}
 }
 
