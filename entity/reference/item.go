@@ -14,7 +14,7 @@ import (
 type Item struct {
 	ID           string `json:"no,omitempty"`
 	Name         string `json:"name,omitempty"`
-	ItemType     string `json:"type"`
+	Type         string `json:"type"`
 	CategoryID   int    `json:"category_id,omitempty"`
 	alternateNo  string `json:"alternate_no,omitempty"`
 	ImageURL     string `json:"image_url,omitempty"`

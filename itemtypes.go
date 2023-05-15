@@ -1,6 +1,6 @@
-package util
+package go_bricklink_api
 
-type ItemType int
+type ItemType int8
 
 const (
 	ItemTypePart ItemType = iota
@@ -14,7 +14,7 @@ const (
 	ItemTypeUnsortedLot
 )
 
-func (it ItemType) String() string {
+func (it ItemType) Label() string {
 	switch it {
 	case ItemTypePart:
 		return "part"
@@ -34,6 +34,31 @@ func (it ItemType) String() string {
 		return "original_box"
 	case ItemTypeUnsortedLot:
 		return "unsorted_lot"
+	default:
+		return ""
+	}
+}
+
+func (it ItemType) String() string {
+	switch it {
+	case ItemTypePart:
+		return "p"
+	case ItemTypeMinifig:
+		return "m"
+	case ItemTypeGear:
+		return "g"
+	case ItemTypeBook:
+		return "b"
+	case ItemTypeCatalog:
+		return "c"
+	case ItemTypeInstruction:
+		return "i"
+	case ItemTypeSet:
+		return "s"
+	case ItemTypeOriginalBox:
+		return "o"
+	case ItemTypeUnsortedLot:
+		return "l"
 	default:
 		return ""
 	}

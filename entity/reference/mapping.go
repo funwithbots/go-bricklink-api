@@ -7,9 +7,9 @@ import (
 	"hash/fnv"
 	"net/http"
 
+	"github.com/funwithbots/go-bricklink-api"
 	"github.com/funwithbots/go-bricklink-api/entity"
 	"github.com/funwithbots/go-bricklink-api/internal"
-	"github.com/funwithbots/go-bricklink-api/util"
 )
 
 // Mapping maps a unique identifier to a Bricklink item/part/type combination.
@@ -33,7 +33,7 @@ func (m Mapping) Label() entity.Label {
 func (r *Reference) GetElementID(options ...RequestOption) ([]Mapping, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
-	if opts.itemType != util.ItemTypePart.String() {
+	if opts.itemType != go_bricklink_api.ItemTypePart.Label() {
 		return nil, errors.New("item type must be part")
 	}
 	if opts.itemNo == "" {

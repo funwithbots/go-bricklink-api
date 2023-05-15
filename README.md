@@ -62,7 +62,7 @@ func main() {
    if err != nil {
       panic(err)
    }
-   fmt.Printf("%s %s is %s\n", item.ItemType, item.ItemNo, item.Name)
+   fmt.Printf("%s %s is %s\n", item.Type, item.ItemNo, item.Name)
 
    // Interact with the Inventory API
    inv := inventory.New(*bl)
