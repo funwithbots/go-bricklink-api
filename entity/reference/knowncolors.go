@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/funwithbots/go-bricklink-api"
+	bl "github.com/funwithbots/go-bricklink-api"
 	"github.com/funwithbots/go-bricklink-api/internal"
 )
 
@@ -24,7 +24,7 @@ func (r *Reference) GetKnownColors(options ...RequestOption) ([]KnownColor, erro
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
 	}
-	if opts.itemType != go_bricklink_api.ItemTypePart.Label() && opts.colorID != nil {
+	if opts.itemType != bl.ItemTypePart.Label() && opts.colorID != nil {
 		return nil, errors.New("color id is only valid for parts")
 	}
 

@@ -48,11 +48,11 @@ import (
 
 func main() { 
    // Create a new Bricklink API client
-   bl, err := bricklink.New(bricklink.WithEnv())
+   b, err := bricklink.New(bricklink.WithEnv())
    if err != nil {
       panic(err)
    }
-   ref := reference.New(*bl)
+   ref := reference.New(*b)
 
    // Interact with the Reference API
    item, err := ref.GetCatalogItem(
@@ -65,7 +65,7 @@ func main() {
    fmt.Printf("%s %s is %s\n", item.Type, item.ItemNo, item.Name)
 
    // Interact with the Inventory API
-   inv := inventory.New(*bl)
+   inv := inventory.New(*b)
    items, err := inv.GetItems(
       inventory.WithInventoryType(inventory.InventoryTypePart),
       inventory.WithColorID(11),
@@ -77,7 +77,7 @@ func main() {
    fmt.Printf("There are %d matching items in inventory\n", len(items))
 
    // Interact with the Orders API
-   ord := orders.New(*bl)
+   ord := orders.New(*b)
    o, err := ord.GetOrders(
       orders.WithOrderStatus(orders.OrderStatusShipped),
       orders.WithOrderStatus(orders.OrderStatusPaid), 

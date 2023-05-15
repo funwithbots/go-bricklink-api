@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/funwithbots/go-bricklink-api"
+	bl "github.com/funwithbots/go-bricklink-api"
 )
 
 type queryTarget int
@@ -68,13 +68,13 @@ func (ro *requestOptions) withOpts(opts []RequestOption) {
 	}
 }
 
-func WithIncludeItemType(itemType go_bricklink_api.ItemType) RequestOption {
+func WithIncludeItemType(itemType bl.ItemType) RequestOption {
 	return func(opts *requestOptions) {
 		opts.itemType = append(opts.itemType, itemType.Label())
 	}
 }
 
-func WithExcludeItemType(itemType go_bricklink_api.ItemType) RequestOption {
+func WithExcludeItemType(itemType bl.ItemType) RequestOption {
 	return func(opts *requestOptions) {
 		opts.itemType = append(opts.itemType, fmt.Sprintf("-%s", itemType.Label()))
 	}
