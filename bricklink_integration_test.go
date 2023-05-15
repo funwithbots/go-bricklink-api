@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	bricklink "github.com/funwithbots/go-bricklink-api"
+	bl "github.com/funwithbots/go-bricklink-api"
 	"github.com/funwithbots/go-bricklink-api/entity/inventory"
 	"github.com/funwithbots/go-bricklink-api/entity/orders"
 	"github.com/funwithbots/go-bricklink-api/entity/reference"
@@ -41,7 +41,7 @@ func TestReference(t *testing.T) {
 	tests := []struct {
 		name     string
 		options  []reference.RequestOption
-		itemType util.ItemType
+		itemType bl.ItemType
 		want     string
 		colorID  int
 		itemID   string
@@ -50,7 +50,7 @@ func TestReference(t *testing.T) {
 			name: "part test",
 			options: []reference.RequestOption{
 				reference.WithItemNo("4592c03"),
-				reference.WithItemType(util.ItemTypePart),
+				reference.WithItemType(bl.ItemTypePart),
 				reference.WithColorID(11),
 				reference.WithBox(true),
 				reference.WithBreakMinifigs(true),
@@ -63,7 +63,7 @@ func TestReference(t *testing.T) {
 				reference.WithRegion(reference.PGRegionNorthAmerica),
 				reference.WithVAT("N"),
 			},
-			itemType: util.ItemTypePart,
+			itemType: bl.ItemTypePart,
 			want:     "4592c03",
 			colorID:  11,
 			itemID:   "4592c03",
@@ -72,7 +72,7 @@ func TestReference(t *testing.T) {
 			name: "set test",
 			options: []reference.RequestOption{
 				reference.WithItemNo("75981-3"),
-				reference.WithItemType(util.ItemTypeSet),
+				reference.WithItemType(bl.ItemTypeSet),
 				reference.WithBox(true),
 				reference.WithBreakMinifigs(false),
 				reference.WithBreakSubsets(true),
@@ -84,19 +84,19 @@ func TestReference(t *testing.T) {
 				reference.WithRegion(reference.PGRegionNorthAmerica),
 				reference.WithVAT("N"),
 			},
-			itemType: util.ItemTypeSet,
+			itemType: bl.ItemTypeSet,
 			want:     "75981-3",
 		},
 		{
 			name: "minifig test",
 			options: []reference.RequestOption{
 				reference.WithItemNo("sw0001c"),
-				reference.WithItemType(util.ItemTypeMinifig),
+				reference.WithItemType(bl.ItemTypeMinifig),
 				reference.WithBreakMinifigs(false),
 				reference.WithGuideType(reference.GuideTypeStock),
 				reference.WithCondition(util.New),
 			},
-			itemType: util.ItemTypeMinifig,
+			itemType: bl.ItemTypeMinifig,
 			want:     "sw0001c",
 		},
 	}
@@ -107,7 +107,7 @@ func TestReference(t *testing.T) {
 		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
 	}
 
-	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
+	bricklink, closeFn, err := newBricklink(&serverOpts, bl.WithEnv())
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
@@ -119,11 +119,11 @@ func TestReference(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			subsets, err := ref.GetSubsets(tt.options...)
+			subset, err := ref.GetSubset(tt.options...)
 			if err != nil {
 				assert.Failf("error getting subsets:", "%s", err.Error())
 			}
-			assert.GreaterOrEqualf(len(subsets), 2, "expected at least one subset")
+			assert.GreaterOrEqualf(len(subset), 2, "expected at least one subset")
 
 			supersets, err := ref.GetSupersets(tt.options...)
 			if err != nil {
@@ -147,11 +147,11 @@ func TestReference(t *testing.T) {
 			}
 			if item != nil {
 				assert.Equal(tt.want, item.ID)
-				assert.Equal(strings.ToUpper(tt.itemType.String()), item.ItemType)
+				assert.Equal(strings.ToUpper(tt.itemType.Label()), item.Type)
 			}
 
 			var elementID string
-			if tt.itemType == util.ItemTypePart {
+			if tt.itemType == bl.ItemTypePart {
 				maps, err := ref.GetElementID(tt.options...)
 				if !assert.Nil(err) {
 					assert.Failf("error getting element id:", "%s", err.Error())
@@ -250,7 +250,7 @@ func TestInventory(t *testing.T) {
 		name        string
 		options     []inventory.RequestOption
 		invResource string
-		itemType    util.ItemType
+		itemType    bl.ItemType
 		want        string
 		colorID     int
 		itemID      string
@@ -276,7 +276,7 @@ func TestInventory(t *testing.T) {
     "sale_rate":0,
     "my_cost":"1.0000"
 }`,
-			itemType:   util.ItemTypePart,
+			itemType:   bl.ItemTypePart,
 			want:       "sticker",
 			colorID:    11,
 			itemID:     "sticker",
@@ -291,7 +291,7 @@ func TestInventory(t *testing.T) {
 		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
 	}
 
-	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
+	bricklink, closeFn, err := newBricklink(&serverOpts, bl.WithEnv())
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
@@ -421,7 +421,7 @@ func TestOrders(t *testing.T) {
 		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
 	}
 
-	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
+	bricklink, closeFn, err := newBricklink(&serverOpts, bl.WithEnv())
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
@@ -465,6 +465,10 @@ func TestOrders(t *testing.T) {
 				unfiled[0].PrimaryKey(),
 				"expected different order ids; got %s", filed[0].PrimaryKey(),
 			) {
+				t.SkipNow()
+			}
+
+			if pendingOrderID == 0 {
 				t.SkipNow()
 			}
 
@@ -569,7 +573,7 @@ func TestOrders_Updating(t *testing.T) {
 		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
 	}
 
-	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
+	bricklink, closeFn, err := newBricklink(&serverOpts, bl.WithEnv())
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
@@ -719,7 +723,7 @@ func TestGetOrder(t *testing.T) {
 		Response:      []byte(`"meta": {"code": 200, "message": "OK"}, "data":{{"id": "3001", "item_type": "PART", "name": "Brick 2 x 4"}}`),
 	}
 
-	bricklink, closeFn, err := newBricklink(&serverOpts, bricklink.WithEnv())
+	bricklink, closeFn, err := newBricklink(&serverOpts, bl.WithEnv())
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
@@ -754,7 +758,7 @@ func TestGetOrder(t *testing.T) {
 	}
 }
 
-func newBricklink(serverOpts *testServerParams, opts ...bricklink.BricklinkOption) (*bricklink.Bricklink, func(), error) {
+func newBricklink(serverOpts *testServerParams, opts ...bl.BricklinkOption) (*bl.Bricklink, func(), error) {
 	var closeFn func()
 	if serverOpts != nil && serverOpts.UseTestServer {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -766,9 +770,9 @@ func newBricklink(serverOpts *testServerParams, opts ...bricklink.BricklinkOptio
 		if err != nil {
 			return nil, closeFn, err
 		}
-		opts = append(opts, bricklink.WithHTTPClient(client))
+		opts = append(opts, bl.WithHTTPClient(client))
 	}
 
-	bricklink, err := bricklink.New(opts...)
+	bricklink, err := bl.New(opts...)
 	return bricklink, closeFn, err
 }

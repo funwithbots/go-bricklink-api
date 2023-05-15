@@ -1,6 +1,6 @@
 package orders
 
-import bricklink "github.com/funwithbots/go-bricklink-api"
+import bl "github.com/funwithbots/go-bricklink-api"
 
 const (
 	pathGetOrders        = "/orders"
@@ -27,15 +27,15 @@ const (
 )
 
 type Orders struct {
-	bricklink.Bricklink
+	bl.Bricklink
 
 	ShippingMethods map[int]ShippingMethod
 }
 
 // New creates a new Orders instance.
-func New(bl bricklink.Bricklink) (*Orders, error) {
+func New(b bl.Bricklink) (*Orders, error) {
 	o := Orders{}
-	o.Bricklink = bl
+	o.Bricklink = b
 
 	err := o.loadShippingMethods()
 	if err != nil {

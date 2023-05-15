@@ -1,7 +1,7 @@
 package reference
 
 import (
-	bricklink "github.com/funwithbots/go-bricklink-api"
+	bl "github.com/funwithbots/go-bricklink-api"
 )
 
 var ItemTypes = map[string]string{
@@ -44,11 +44,11 @@ const (
 )
 
 type Reference struct {
-	bricklink.Bricklink
+	bl.Bricklink
 }
 
-func New(bl bricklink.Bricklink) *Reference {
+func New(b bl.Bricklink) *Reference {
 	return &Reference{
-		bl,
+		b,
 	}
 }

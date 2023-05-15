@@ -50,13 +50,13 @@ type bricklinkOptions struct {
 	timeout          time.Duration
 }
 
-func (bl *Bricklink) withOpts(opts []BricklinkOption) {
-	bl.Timeout = defaultContextTimeout
-	bl.baseURL = defaultBaseURL
-	bl.Client = http.DefaultClient
+func (b *Bricklink) withOpts(opts []BricklinkOption) {
+	b.Timeout = defaultContextTimeout
+	b.baseURL = defaultBaseURL
+	b.Client = http.DefaultClient
 
 	for _, opt := range opts {
-		opt(bl)
+		opt(b)
 	}
 }
 
@@ -157,8 +157,8 @@ func New(opts ...BricklinkOption) (*Bricklink, error) {
 
 // NewRequest creates a new HTTP request with auth headers and the specified method and path.
 // The body is optional. If present, it should be sent as an urlencoded strings.NewReader(body).
-func (bl *Bricklink) NewRequest(method string, path string, params map[string]string, body []byte) (*http.Request, error) {
-	url := bl.baseURL + path
+func (b *Bricklink) NewRequest(method string, path string, params map[string]string, body []byte) (*http.Request, error) {
+	url := b.baseURL + path
 	buf := bytes.NewReader(body)
 
 	req, err := http.NewRequest(method, url, buf)
@@ -169,7 +169,7 @@ func (bl *Bricklink) NewRequest(method string, path string, params map[string]st
 		req.URL.RawQuery = query
 	}
 
-	authHeader := bl.auth(method, url, params)
+	authHeader := b.auth(method, url, params)
 	authHeader = authHeader[:5] + " realm=\"\"," + authHeader[5:]
 	req.Header.Set("Authorization", authHeader)
 
@@ -178,8 +178,8 @@ func (bl *Bricklink) NewRequest(method string, path string, params map[string]st
 
 // NewRequestWithContext creates a new HTTP request with auth headers and the specified method and path.
 // The body is optional. If present, it should be sent as an urlencoded strings.NewReader(body).
-func (bl *Bricklink) NewRequestWithContext(ctx context.Context, method, path string, params map[string]string, body []byte) (*http.Request, error) {
-	url := bl.baseURL + path
+func (b *Bricklink) NewRequestWithContext(ctx context.Context, method, path string, params map[string]string, body []byte) (*http.Request, error) {
+	url := b.baseURL + path
 	buf := bytes.NewReader(body)
 
 	req, err := http.NewRequestWithContext(ctx, method, url, buf)
@@ -193,15 +193,15 @@ func (bl *Bricklink) NewRequestWithContext(ctx context.Context, method, path str
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Accept-Charset", "utf-8")
 
-	authHeader := bl.auth(method, url, params)
+	authHeader := b.auth(method, url, params)
 	authHeader = authHeader[:5] + " realm=\"\"," + authHeader[5:]
 	req.Header.Set("Authorization", authHeader)
 
 	return req, nil
 }
 
-func (bl *Bricklink) auth(method, url string, params map[string]string) string {
-	return bl.oAuth.BuildOAuth1Header(method, url, params)
+func (b *Bricklink) auth(method, url string, params map[string]string) string {
+	return b.oAuth.BuildOAuth1Header(method, url, params)
 }
 
 func fromParams(params map[string]string) string {
