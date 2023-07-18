@@ -34,7 +34,7 @@ type Item struct {
 
 func (it Item) PrimaryKey() int {
 	hash := fnv.New32a()
-	hash.Write([]byte(it.ID))
+	hash.Write([]byte(it.ID + it.Type))
 	return int(hash.Sum32())
 }
 

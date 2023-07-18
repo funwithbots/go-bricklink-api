@@ -49,32 +49,22 @@ type Header struct {
 			CountryCode string `json:"country_code,omitempty"`
 		} `json:"address,omitempty"`
 	} `json:"shipping,omitempty"`
-	Cost struct {
-		CurrencyCode string `json:"currency_code,omitempty"`
-		Subtotal     string `json:"subtotal,omitempty"`
-		GrandTotal   string `json:"grand_total,omitempty"`
-		Etc1         string `json:"etc1,omitempty"`
-		Etc2         string `json:"etc2,omitempty"`
-		Insurance    string `json:"insurance,omitempty"`
-		Shipping     string `json:"shipping,omitempty"`
-		Credit       string `json:"credit,omitempty"`
-		Coupon       string `json:"coupon,omitempty"`
-		VatRate      string `json:"vat_rate,omitempty"`
-		VatAmount    string `json:"vat_amount,omitempty"`
-	} `json:"cost,omitempty"`
-	DispCost struct {
-		CurrencyCode string `json:"currency_code,omitempty"`
-		Subtotal     string `json:"subtotal,omitempty"`
-		GrandTotal   string `json:"grand_total,omitempty"`
-		Etc1         string `json:"etc1,omitempty"`
-		Etc2         string `json:"etc2,omitempty"`
-		Insurance    string `json:"insurance,omitempty"`
-		Shipping     string `json:"shipping,omitempty"`
-		Credit       string `json:"credit,omitempty"`
-		Coupon       string `json:"coupon,omitempty"`
-		VatRate      string `json:"vat_rate,omitempty"`
-		VatAmount    string `json:"vat_amount,omitempty"`
-	} `json:"disp_cost,omitempty"`
+	Cost     Cost `json:"cost,omitempty"`
+	DispCost Cost `json:"disp_cost,omitempty"`
+}
+
+type Cost struct {
+	CurrencyCode string `json:"currency_code,omitempty"`
+	Subtotal     string `json:"subtotal,omitempty"`
+	GrandTotal   string `json:"grand_total,omitempty"`
+	Etc1         string `json:"etc1,omitempty"`
+	Etc2         string `json:"etc2,omitempty"`
+	Insurance    string `json:"insurance,omitempty"`
+	Shipping     string `json:"shipping,omitempty"`
+	Credit       string `json:"credit,omitempty"`
+	Coupon       string `json:"coupon,omitempty"`
+	VatRate      string `json:"vat_rate,omitempty"`
+	VatAmount    string `json:"vat_amount,omitempty"`
 }
 
 func (h Header) PrimaryKey() int {
