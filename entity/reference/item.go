@@ -2,6 +2,7 @@ package reference
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"hash/fnv"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/funwithbots/go-bricklink-api/entity"
 	"github.com/funwithbots/go-bricklink-api/internal"
+	"github.com/funwithbots/go-bricklink-api/util"
 )
 
 type Item struct {
@@ -30,6 +32,27 @@ type Item struct {
 	Description  string `json:"description,omitempty"`
 	IsObsolete   bool   `json:"is_obsolete,omitempty"`
 	LanguageCode string `json:"language_code,omitempty"`
+}
+
+func (it *Item) UnmarshalJSON(data []byte) error {
+	type Alias Item
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(it),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	// clean up data
+	aux.Name = util.NormalizeString(aux.Name)
+	aux.Description = util.NormalizeString(aux.Description)
+
+	*it = Item(*aux.Alias)
+
+	return nil
 }
 
 func (it Item) PrimaryKey() int {

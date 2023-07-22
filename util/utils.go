@@ -1,6 +1,9 @@
 package util
 
-import "math/rand"
+import (
+	"html"
+	"math/rand"
+)
 
 func RandomString(length int, rnd *rand.Rand) string {
 	const allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -9,4 +12,10 @@ func RandomString(length int, rnd *rand.Rand) string {
 		b[i] = allowed[rnd.Intn(len(allowed))]
 	}
 	return string(b)
+}
+
+// NormalizeString processes a string to make it more readable.
+// Currently, it only unescapes the string.
+func NormalizeString(s string) string {
+	return html.UnescapeString(html.UnescapeString(s))
 }
