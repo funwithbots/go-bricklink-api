@@ -303,7 +303,7 @@ func TestInventory(t *testing.T) {
 
 	for _, tt := range tests {
 		// Generate a random remark to avoid deleting real inventory items.
-		remark := "TEST " + util.RandomString(16, bricklink.Rand)
+		remark := `TEST "` + util.RandomString(16, bricklink.Rand)
 
 		t.Run(tt.name, func(t *testing.T) {
 			var it inventory.Item
