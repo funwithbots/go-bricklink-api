@@ -29,6 +29,7 @@ type Header struct {
 	BuyerOrderCount   int        `json:"buyer_order_count,omitempty"`
 	IsFiled           *bool      `json:"is_filed,omitempty"`
 	DriveThruSent     *bool      `json:"drive_thru_sent,omitempty"`
+	TaxCollected      *bool      `json:"salesTax_collected_by_bl,omitempty"`
 	Payment           struct {
 		Method       string     `json:"method,omitempty"`
 		CurrencyCode string     `json:"currency_code,omitempty"`
@@ -57,6 +58,7 @@ type Cost struct {
 	CurrencyCode string `json:"currency_code,omitempty"`
 	Subtotal     string `json:"subtotal,omitempty"`
 	GrandTotal   string `json:"grand_total,omitempty"`
+	Tax          string `json:"salesTax_collected_by_BL,omitempty"`
 	Etc1         string `json:"etc1,omitempty"`
 	Etc2         string `json:"etc2,omitempty"`
 	Insurance    string `json:"insurance,omitempty"`

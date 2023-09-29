@@ -18,7 +18,7 @@ type Item struct {
 	Name         string `json:"name,omitempty"`
 	Type         string `json:"type"`
 	CategoryID   int    `json:"category_id,omitempty"`
-	alternateNo  string `json:"alternate_no,omitempty"`
+	AlternateNo  string `json:"alternate_no,omitempty"`
 	ImageURL     string `json:"image_url,omitempty"`
 	ThumbnailURL string `json:"thumbnail_url,omitempty"`
 
