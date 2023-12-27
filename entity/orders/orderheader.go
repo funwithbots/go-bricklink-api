@@ -29,29 +29,31 @@ type Header struct {
 	BuyerOrderCount   int        `json:"buyer_order_count,omitempty"`
 	IsFiled           *bool      `json:"is_filed,omitempty"`
 	DriveThruSent     *bool      `json:"drive_thru_sent,omitempty"`
-	TaxCollected      *bool      `json:"salesTax_collected_by_bl,omitempty"`
+	TaxCollected      *bool      `json:"salesTax_collected_by_bl ,omitempty"`
 	Payment           struct {
 		Method       string     `json:"method,omitempty"`
 		CurrencyCode string     `json:"currency_code,omitempty"`
 		DatePaid     *time.Time `json:"date_paid,omitempty"`
 		Status       string     `json:"status,omitempty"`
 	} `json:"payment,omitempty"`
-	Shipping struct {
-		MethodID     int        `json:"method_id,omitempty"`
-		Method       string     `json:"method,omitempty"`
-		TrackingLink string     `json:"tracking_link,omitempty"`
-		TrackingNo   string     `json:"tracking_no,omitempty"`
-		DateShipped  *time.Time `json:"date_shipped,omitempty"`
-		Address      *struct {
-			Name struct {
-				Full string `json:"full,omitempty"`
-			} `json:"name,omitempty"`
-			Full        string `json:"full,omitempty"`
-			CountryCode string `json:"country_code,omitempty"`
-		} `json:"address,omitempty"`
-	} `json:"shipping,omitempty"`
-	Cost     Cost `json:"cost,omitempty"`
-	DispCost Cost `json:"disp_cost,omitempty"`
+	Shipping Shipping `json:"shipping,omitempty"`
+	Cost     Cost     `json:"cost,omitempty"`
+	DispCost Cost     `json:"disp_cost,omitempty"`
+}
+
+type Shipping struct {
+	MethodID     int        `json:"method_id,omitempty"`
+	Method       string     `json:"method,omitempty"`
+	TrackingLink string     `json:"tracking_link,omitempty"`
+	TrackingNo   string     `json:"tracking_no,omitempty"`
+	DateShipped  *time.Time `json:"date_shipped,omitempty"`
+	Address      *struct {
+		Name struct {
+			Full string `json:"full,omitempty"`
+		} `json:"name,omitempty"`
+		Full        string `json:"full,omitempty"`
+		CountryCode string `json:"country_code,omitempty"`
+	} `json:"address,omitempty"`
 }
 
 type Cost struct {
@@ -161,6 +163,8 @@ func (o *Orders) UpdateOrder(header Header) (*Header, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), o.Timeout)
 	defer cancel()
 
+	// If shipping date needs the preceise format from the API docs, create a custom marshaler for the date
+	// using .Format("2006-01-02T15:04:05.000Z")
 	body, err := json.Marshal(h)
 	if err != nil {
 		return nil, err

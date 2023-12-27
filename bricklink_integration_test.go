@@ -115,7 +115,7 @@ func TestReference(t *testing.T) {
 		defer closeFn()
 	}
 
-	ref := reference.New(*bricklink)
+	ref := reference.New(bricklink)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

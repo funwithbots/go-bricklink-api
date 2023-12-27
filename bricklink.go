@@ -152,6 +152,10 @@ func New(opts ...BricklinkOption) (*Bricklink, error) {
 
 	bl.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
+	if bl.Timeout == 0 {
+		bl.Timeout = defaultContextTimeout
+	}
+
 	return &bl, nil
 }
 

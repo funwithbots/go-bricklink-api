@@ -30,9 +30,9 @@ func (c Color) Label() entity.Label {
 func (r *Reference) GetColors() ([]Color, error) {
 	// if colorMap is primed, return those values
 	if len(colorMap) > 0 {
-		colors := make([]Color, len(colorMap))
-		for i, color := range colorMap {
-			colors[i] = color
+		colors := make([]Color, 0, len(colorMap))
+		for _, color := range colorMap {
+			colors = append(colors, color)
 		}
 		return colors, nil
 	}
