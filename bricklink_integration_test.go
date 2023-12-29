@@ -763,7 +763,7 @@ func newBricklink(serverOpts *testServerParams, opts ...bl.BricklinkOption) (*bl
 	if serverOpts != nil && serverOpts.UseTestServer {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(serverOpts.Status)
-			w.Write(serverOpts.Response)
+			_, _ = w.Write(serverOpts.Response)
 		}))
 		closeFn = func() { server.Close() }
 		client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))

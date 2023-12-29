@@ -163,7 +163,7 @@ func (o *Orders) UpdateOrder(header Header) (*Header, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), o.Timeout)
 	defer cancel()
 
-	// If shipping date needs the preceise format from the API docs, create a custom marshaler for the date
+	// If shipping date needs the precise format from the API docs, create a custom marshaller for the date
 	// using .Format("2006-01-02T15:04:05.000Z")
 	body, err := json.Marshal(h)
 	if err != nil {

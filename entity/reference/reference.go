@@ -1,7 +1,13 @@
 package reference
 
 import (
+	"time"
+
 	bricklink "github.com/funwithbots/go-bricklink-api"
+)
+
+const (
+	defaultTimeout = 3 * time.Second
 )
 
 var ItemTypes = map[string]string{
@@ -48,6 +54,10 @@ type Reference struct {
 }
 
 func New(b *bricklink.Bricklink) *Reference {
+	if b.Timeout == 0 {
+		b.Timeout = defaultTimeout
+	}
+
 	return &Reference{
 		b,
 	}

@@ -57,7 +57,7 @@ func (it *Item) UnmarshalJSON(data []byte) error {
 
 func (it Item) PrimaryKey() int {
 	hash := fnv.New32a()
-	hash.Write([]byte(it.ID + it.Type))
+	_, _ = hash.Write([]byte(it.ID + it.Type))
 	return int(hash.Sum32())
 }
 

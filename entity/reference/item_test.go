@@ -50,7 +50,7 @@ func TestItem_UnmarshalJSON(t *testing.T) {
 				Name:         html.EscapeString(html.EscapeString(tt.fields.Name)),
 				Type:         tt.fields.Type,
 				CategoryID:   tt.fields.CategoryID,
-				alternateNo:  tt.fields.alternateNo,
+				AlternateNo:  tt.fields.alternateNo,
 				ImageURL:     tt.fields.ImageURL,
 				ThumbnailURL: tt.fields.ThumbnailURL,
 				Weight:       tt.fields.Weight,

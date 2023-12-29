@@ -22,7 +22,7 @@ type Mapping struct {
 
 func (m Mapping) PrimaryKey() string {
 	hash := fnv.New32a()
-	hash.Write([]byte(m.ElementID))
+	_, _ = hash.Write([]byte(m.ElementID))
 	return strconv.Itoa(int(hash.Sum32()))
 }
 
