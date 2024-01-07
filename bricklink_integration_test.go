@@ -115,7 +115,7 @@ func TestReference(t *testing.T) {
 		defer closeFn()
 	}
 
-	ref := reference.New(*bricklink)
+	ref := reference.New(bricklink)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -303,7 +303,7 @@ func TestInventory(t *testing.T) {
 
 	for _, tt := range tests {
 		// Generate a random remark to avoid deleting real inventory items.
-		remark := "TEST " + util.RandomString(16, bricklink.Rand)
+		remark := `TEST "` + util.RandomString(16, bricklink.Rand)
 
 		t.Run(tt.name, func(t *testing.T) {
 			var it inventory.Item
@@ -763,7 +763,7 @@ func newBricklink(serverOpts *testServerParams, opts ...bl.BricklinkOption) (*bl
 	if serverOpts != nil && serverOpts.UseTestServer {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(serverOpts.Status)
-			w.Write(serverOpts.Response)
+			_, _ = w.Write(serverOpts.Response)
 		}))
 		closeFn = func() { server.Close() }
 		client, err := internal.NewClient(internal.WithHTTPClient(server.Client()))

@@ -31,7 +31,7 @@ type MemberRating struct {
 
 func (m *Member) PrimaryKey() int {
 	hash := fnv.New32a()
-	hash.Write([]byte(m.UserName))
+	_, _ = hash.Write([]byte(m.UserName))
 	return int(hash.Sum32())
 }
 

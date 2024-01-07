@@ -12,7 +12,12 @@ import (
 )
 
 type PriceGuide struct {
-	Item          Item          `json:"item"`
+	Item        Item   `json:"item"`
+	Color       int    `json:"color_id"` // optional
+	GuideType   string `json:"-"`
+	Region      string `json:"-"`
+	CountryCode string `json:"-"`
+
 	NewOrUsed     string        `json:"new_or_used"`
 	CurrencyCode  string        `json:"currency_code"`
 	MinPrice      string        `json:"min_price"`
@@ -42,9 +47,13 @@ func (pg *PriceGuide) Label() entity.Label {
 	return entity.LabelPriceGuide
 }
 
+// GetPriceGuide gets the price guide data for an item.
+// Available params documented at https://www.bricklink.com/v3/api.page?page=get-price-guide
+// Item type and number are required.
 func (r *Reference) GetPriceGuide(options ...RequestOption) (*PriceGuide, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
+
 	if opts.itemNo == "" {
 		return nil, errors.New("item no is required")
 	}
@@ -77,6 +86,15 @@ func (r *Reference) GetPriceGuide(options ...RequestOption) (*PriceGuide, error)
 	var pg PriceGuide
 	if err := internal.Parse(res.Body, &pg); err != nil {
 		return nil, err
+	}
+	if opts.colorID != nil {
+		pg.Color = *opts.colorID
+	}
+	if opts.region != nil {
+		pg.Region = *opts.region
+	}
+	if opts.countryCode != nil {
+		pg.CountryCode = *opts.countryCode
 	}
 
 	return &pg, nil

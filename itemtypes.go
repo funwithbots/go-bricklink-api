@@ -1,27 +1,39 @@
 package go_bricklink_api
 
+import "strings"
+
 type ItemType string
 
 const (
-	ItemTypePart        ItemType = "P"
-	ItemTypeMinifig     ItemType = "M"
-	ItemTypeGear        ItemType = "G"
+	ItemTypeMinifig ItemType = "M"
+	ItemTypePart    ItemType = "P"
+	ItemTypeSet     ItemType = "S"
+
 	ItemTypeBook        ItemType = "B"
 	ItemTypeCatalog     ItemType = "C"
+	ItemTypeGear        ItemType = "G"
 	ItemTypeInstruction ItemType = "I"
-	ItemTypeSet         ItemType = "S"
 	ItemTypeOriginalBox ItemType = "O"
 	ItemTypeUnsortedLot ItemType = "L"
 )
 
 var ItemTypeMap = map[ItemType]string{
-	ItemTypePart:        "part",
-	ItemTypeMinifig:     "minifig",
+	ItemTypeMinifig: "minifig",
+	ItemTypePart:    "part",
+	ItemTypeSet:     "set",
+
 	ItemTypeBook:        "book",
 	ItemTypeCatalog:     "catalog",
-	ItemTypeInstruction: "instruction",
-	ItemTypeSet:         "set",
-	ItemTypeOriginalBox: "original_box",
 	ItemTypeGear:        "gear",
+	ItemTypeInstruction: "instruction",
+	ItemTypeOriginalBox: "original_box",
 	ItemTypeUnsortedLot: "unsorted_lot",
+}
+
+var ItemCodeMap = make(map[string]ItemType)
+
+func init() {
+	for k, v := range ItemTypeMap {
+		ItemCodeMap[v] = ItemType(strings.ToUpper(string(k)))
+	}
 }

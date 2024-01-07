@@ -47,6 +47,9 @@ func (ro *requestOptions) toQuery(target queryTarget) (map[string]string, error)
 			params["color_id"] = strconv.Itoa(*ro.colorID)
 		}
 	case queryTargetSubsets:
+		if ro.itemType == "" {
+			return nil, fmt.Errorf("item_type is required")
+		}
 		if ro.colorID != nil {
 			if ro.itemType != bl.ItemTypeMap[bl.ItemTypePart] {
 				return nil, fmt.Errorf("color_id is only valid for parts")
@@ -107,6 +110,9 @@ func (ro *requestOptions) withOpts(opts []RequestOption) {
 
 func WithItemType(typ bl.ItemType) RequestOption {
 	return func(opts *requestOptions) {
+		if len(typ) > 1 {
+			typ = typ[0:1]
+		}
 		opts.itemType = bl.ItemTypeMap[typ]
 	}
 }

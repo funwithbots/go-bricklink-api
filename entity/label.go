@@ -3,7 +3,7 @@ package entity
 type Label int
 
 const (
-	Unknown Label = iota
+	LabelUnknown Label = iota
 	LabelCatalog
 	LabelCategory
 	LabelColor

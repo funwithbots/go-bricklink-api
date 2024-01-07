@@ -10,6 +10,7 @@ import (
 	"github.com/funwithbots/go-bricklink-api/entity"
 	"github.com/funwithbots/go-bricklink-api/entity/reference"
 	"github.com/funwithbots/go-bricklink-api/internal"
+	"github.com/funwithbots/go-bricklink-api/util"
 )
 
 type Item struct {
@@ -39,6 +40,21 @@ type Item struct {
 	TierPrice2    string     `json:"tier_price2,omitempty"`
 	TierQuantity3 int        `json:"tier_quantity3,omitempty"`
 	TierPrice3    string     `json:"tier_price3,omitempty"`
+}
+
+func (it *Item) UnmarshalJSON(data []byte) error {
+	type alias Item
+	var a alias
+	if err := json.Unmarshal(data, &a); err != nil {
+		return err
+	}
+
+	// Fix up the data
+	a.Description = util.NormalizeString(a.Description)
+	a.Remarks = util.NormalizeString(a.Remarks)
+
+	*it = Item(a)
+	return nil
 }
 
 func (it Item) PrimaryKey() int {
@@ -87,7 +103,7 @@ func (inv *Inventory) GetItems(options ...RequestOption) ([]Item, error) {
 	if err != nil {
 		return nil, err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), inv.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), inv.Timeout*2)
 	defer cancel()
 
 	req, err := inv.NewRequestWithContext(ctx, http.MethodGet, pathGetItems, query, nil)

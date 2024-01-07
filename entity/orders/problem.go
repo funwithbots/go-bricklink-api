@@ -1,6 +1,6 @@
 package orders
 
-var ProblemReasonIDs map[int]string = map[int]string{
+var ProblemReasonIDs = map[int]string{
 	6:   "Buyer did not respond to emails",
 	7:   "Buyer email address bounced",
 	8:   "Seller did not receive payment",
