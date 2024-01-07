@@ -103,7 +103,7 @@ func (inv *Inventory) GetItems(options ...RequestOption) ([]Item, error) {
 	if err != nil {
 		return nil, err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), inv.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), inv.Timeout*2)
 	defer cancel()
 
 	req, err := inv.NewRequestWithContext(ctx, http.MethodGet, pathGetItems, query, nil)

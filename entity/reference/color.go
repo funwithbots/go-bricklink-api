@@ -16,7 +16,15 @@ type Color struct {
 	ColorType string `json:"color_type"`
 }
 
+const (
+	noColor = 0
+)
+
 var colorMap = make(map[int]Color)
+
+func NoColor() int {
+	return noColor
+}
 
 func (c Color) PrimaryKey() int {
 	return c.ID

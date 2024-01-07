@@ -13,6 +13,8 @@ import (
 	"github.com/funwithbots/go-bricklink-api/util"
 )
 
+// Item represents a catalog item from the Bricklink API.
+// https://www.bricklink.com/v3/api.page?page=resource-representations-catalog
 type Item struct {
 	ID           string `json:"no,omitempty"`
 	Name         string `json:"name,omitempty"`
@@ -55,6 +57,7 @@ func (it *Item) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// PrimaryKey returns a hashed value for item based on the item number and type.
 func (it Item) PrimaryKey() int {
 	hash := fnv.New32a()
 	_, _ = hash.Write([]byte(it.ID + it.Type))
@@ -65,6 +68,8 @@ func (it Item) Label() entity.Label {
 	return entity.LabelInventoryItem
 }
 
+// GetItem returns a single part from Bricklink using the Get Item API method for the catalog item.
+// https://www.bricklink.com/v3/api.page?page=get-item
 func (r *Reference) GetItem(options ...RequestOption) (*Item, error) {
 	var opts = requestOptions{}
 	opts.withOpts(options)
@@ -95,8 +100,12 @@ func (r *Reference) GetItem(options ...RequestOption) (*Item, error) {
 	return &item, nil
 }
 
+// GetItemImage returns the image URL from Bricklink using the Get Item Image API method for the catalog item.
+// https://www.bricklink.com/v3/api.page?page=get-item-image
 func (r *Reference) GetItemImage(options ...RequestOption) (*Item, error) {
 	var opts = requestOptions{}
+	color := NoColor()
+	opts.colorID = &color
 	opts.withOpts(options)
 	if opts.itemNo == "" {
 		return nil, errors.New("item no is required")
@@ -104,16 +113,8 @@ func (r *Reference) GetItemImage(options ...RequestOption) (*Item, error) {
 	if opts.itemType == "" {
 		return nil, errors.New("type is required")
 	}
-	// if opts.colorID == nil {
-	// 	return nil, errors.New("color is required")
-	// }
 	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
-
-	color := 0
-	if opts.colorID != nil {
-		color = *opts.colorID
-	}
 
 	req, err := r.NewRequestWithContext(
 		ctx,
