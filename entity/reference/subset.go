@@ -13,15 +13,17 @@ import (
 type Subset []SubsetItem
 
 type SubsetItem struct {
-	MatchNo int `json:"match_no"` // 0 value are unique parts with no alternates or counterparts
-	Entries []struct {
-		Item          Item `json:"item"`
-		ColorID       int  `json:"color_id"`
-		Quantity      int  `json:"quantity"`
-		ExtraQuantity int  `json:"extra_quantity"`
-		IsAlternate   bool `json:"is_alternate"`
-		IsCounterpart bool `json:"is_counterpart"`
-	} `json:"entries"`
+	MatchNo int           `json:"match_no"` // 0 value are unique parts with no alternates or counterparts
+	Entries []SubsetEntry `json:"entries"`
+}
+
+type SubsetEntry struct {
+	Item          Item `json:"item"`
+	ColorID       int  `json:"color_id"`
+	Quantity      int  `json:"quantity"`
+	ExtraQuantity int  `json:"extra_quantity"`
+	IsAlternate   bool `json:"is_alternate"`
+	IsCounterpart bool `json:"is_counterpart"`
 }
 
 // PrimaryKey isn't meaningful for this entity.

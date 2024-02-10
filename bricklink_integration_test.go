@@ -237,7 +237,7 @@ func TestReference(t *testing.T) {
 			assert.Fail(err.Error())
 		}
 		if v.ColorName != want {
-			assert.Failf("", "wanted %d; got %s", want, v.ColorName)
+			assert.Failf("", "wanted %s; got %s", want, v.ColorName)
 		}
 	})
 }
@@ -299,7 +299,7 @@ func TestInventory(t *testing.T) {
 		defer closeFn()
 	}
 
-	inv := inventory.New(*bricklink)
+	inv := inventory.New(bricklink)
 
 	for _, tt := range tests {
 		// Generate a random remark to avoid deleting real inventory items.
@@ -429,7 +429,7 @@ func TestOrders(t *testing.T) {
 		defer closeFn()
 	}
 
-	ord, err := orders.New(*bricklink)
+	ord, err := orders.New(bricklink)
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
@@ -463,7 +463,7 @@ func TestOrders(t *testing.T) {
 			if !assert.NotEqualf(
 				filed[0].PrimaryKey(),
 				unfiled[0].PrimaryKey(),
-				"expected different order ids; got %s", filed[0].PrimaryKey(),
+				"expected different order ids; got %d", filed[0].PrimaryKey(),
 			) {
 				t.SkipNow()
 			}
@@ -482,7 +482,7 @@ func TestOrders(t *testing.T) {
 			// get order
 			get, err := ord.GetOrderHeader(original.PrimaryKey())
 			if err != nil {
-				assert.Failf("error getting order", " %d:", original.PrimaryKey(), "%s", err.Error())
+				assert.Failf("error getting order", " %d: %s", original.PrimaryKey(), err.Error())
 				t.SkipNow()
 			}
 			assert.Equalf(original.PrimaryKey(), get.PrimaryKey(), "expected order %d to match original", original.PrimaryKey())
@@ -581,14 +581,14 @@ func TestOrders_Updating(t *testing.T) {
 		defer closeFn()
 	}
 
-	ord, err := orders.New(*bricklink)
+	ord, err := orders.New(bricklink)
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
 
 	oh, err := ord.GetOrderHeader(pendingOrderID)
 	if err != nil {
-		assert.Failf("error getting order header", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error getting order header", " %d: %s", pendingOrderID, err.Error())
 		t.SkipNow()
 	}
 	if oh == nil {
@@ -604,7 +604,7 @@ func TestOrders_Updating(t *testing.T) {
 	oh.Remarks = remarks + rnd
 	ohupdate, err := ord.UpdateOrder(*oh)
 	if err != nil {
-		assert.Failf("error updating order", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error updating order", " %d: %s", pendingOrderID, err.Error())
 		t.SkipNow()
 	}
 	if ohupdate == nil {
@@ -620,14 +620,14 @@ func TestOrders_Updating(t *testing.T) {
 	oh.Remarks = remarks
 	_, err = ord.UpdateOrder(*oh)
 	if err != nil {
-		assert.Failf("error reverting remarks", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error reverting remarks", " %d: %s", pendingOrderID, err.Error())
 	}
 
 	// check to be sure no unexpected changes occurred
 	// Get order, compare to original.
 	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
 	if err != nil {
-		assert.Failf("error retrieving order after setting remarks", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error retrieving order after setting remarks", " %d: %s", pendingOrderID, err.Error())
 	}
 	if !reflect.DeepEqual(oh, ohupdate) {
 		assert.Failf("order not reverted", "expected\n%+v\n; got\n%+v\n", oh, ohupdate)
@@ -642,13 +642,13 @@ func TestOrders_Updating(t *testing.T) {
 	}
 	err = ord.UpdatePaymentStatus(pendingOrderID, p)
 	if err != nil {
-		assert.Failf("error updating payment status for order", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error updating payment status for order", " %d: %s", pendingOrderID, err.Error())
 		t.SkipNow()
 	}
 	// Get order, compare to original.
 	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
 	if err != nil {
-		assert.Failf("error retrieving order after setting payment status", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error retrieving order after setting payment status", " %d: %s", pendingOrderID, err.Error())
 	}
 	assert.Equalf(p, ohupdate.Status, "expected order status unchanged. Wanted %s, got %s", original.Status, ohupdate.Status)
 
@@ -656,7 +656,7 @@ func TestOrders_Updating(t *testing.T) {
 	oh.Payment.Status = payment
 	_, err = ord.UpdateOrder(*oh)
 	if err != nil {
-		assert.Failf("error reverting payment status", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error reverting payment status", " %d: %s", pendingOrderID, err.Error())
 	}
 
 	// check to be sure no unexpected changes occurred
@@ -673,12 +673,12 @@ func TestOrders_Updating(t *testing.T) {
 	}
 	err = ord.UpdateOrderStatus(pendingOrderID, s)
 	if err != nil {
-		assert.Failf("error updating order status for order", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error updating order status for order", " %d: %s", pendingOrderID, err.Error())
 		t.SkipNow()
 	}
 	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
 	if err != nil {
-		assert.Failf("error retrieving order after setting payment status", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error retrieving order after setting payment status", " %d: %s", pendingOrderID, err.Error())
 	}
 	if ohupdate.Status != oh.Status {
 		assert.Failf("order status not updated", "expected %s; got %s", oh.Status, ohupdate.Status)
@@ -689,14 +689,14 @@ func TestOrders_Updating(t *testing.T) {
 	oh.Status = status
 	err = ord.UpdateOrderStatus(pendingOrderID, s)
 	if err != nil {
-		assert.Failf("error reverting order status", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error reverting order status", " %d: %s", pendingOrderID, err.Error())
 	}
 
 	// check to be sure no unexpected changes occurred
 	// Get order, compare to original.
 	ohupdate, err = ord.GetOrderHeader(pendingOrderID)
 	if err != nil {
-		assert.Failf("error retrieving reverted order", " %s: %s", pendingOrderID, err.Error())
+		assert.Failf("error retrieving reverted order", " %d: %s", pendingOrderID, err.Error())
 	}
 	if !reflect.DeepEqual(oh, ohupdate) {
 		assert.Failf("order not reverted", "expected\n%+v\n; got\n%+v\n", oh, ohupdate)
@@ -731,7 +731,7 @@ func TestGetOrder(t *testing.T) {
 		defer closeFn()
 	}
 
-	ord, err := orders.New(*bricklink)
+	ord, err := orders.New(bricklink)
 	if err != nil {
 		assert.FailNow(err.Error())
 	}
@@ -744,7 +744,7 @@ func TestGetOrder(t *testing.T) {
 			// get filed orders
 			order, err := ord.GetOrder(tt.OrderID)
 			if err != nil {
-				assert.Failf("error retrieving order %d:", "%s", tt.OrderID, err.Error())
+				assert.Failf("error retrieving order ", "%d: %s", tt.OrderID, err.Error())
 				t.SkipNow()
 			}
 			assert.Equalf(tt.OrderID, order.ID, "expected order %d; got %d", tt.OrderID, order.ID)

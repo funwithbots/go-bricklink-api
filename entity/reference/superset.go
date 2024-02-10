@@ -13,12 +13,14 @@ import (
 type Superset []SupersetItem
 
 type SupersetItem struct {
-	ColorID int `json:"color_id"`
-	Entries []struct {
-		Item      Item   `json:"item"`
-		Quantity  int    `json:"quantity"`
-		AppearsAs string `json:"appears_as"`
-	} `json:"entries"`
+	ColorID int             `json:"color_id"`
+	Entries []SupersetEntry `json:"entries"`
+}
+
+type SupersetEntry struct {
+	Item      Item   `json:"item"`
+	Quantity  int    `json:"quantity"`
+	AppearsAs string `json:"appears_as"`
 }
 
 // PrimaryKey isn't meaningful for this entity.
