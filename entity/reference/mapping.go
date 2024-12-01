@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"net/http"
+	"strconv"
 
 	bl "github.com/funwithbots/go-bricklink-api"
 	"github.com/funwithbots/go-bricklink-api/entity"
@@ -21,8 +22,8 @@ type Mapping struct {
 
 func (m Mapping) PrimaryKey() string {
 	hash := fnv.New32a()
-	hash.Write([]byte(m.ElementID))
-	return string(hash.Sum32())
+	_, _ = hash.Write([]byte(m.ElementID))
+	return strconv.Itoa(int(hash.Sum32()))
 }
 
 func (m Mapping) Label() entity.Label {

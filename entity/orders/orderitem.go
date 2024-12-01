@@ -15,6 +15,7 @@ type Item struct {
 	InventoryID        int            `json:"inventory_id"`
 	Item               reference.Item `json:"item"`
 	ColorID            int            `json:"color_id"`
+	ColorName          string         `json:"color_name"`
 	Quantity           int            `json:"quantity"`
 	NewOrUsed          string         `json:"new_or_used"`
 	Completeness       string         `json:"completeness"`
@@ -45,7 +46,12 @@ func (o *Orders) GetOrderItems(id int) ([]Item, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), o.Timeout)
 	defer cancel()
 
-	req, err := o.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(pathGetOrderItems, id), nil, nil)
+	req, err := o.NewRequestWithContext(ctx,
+		http.MethodGet,
+		fmt.Sprintf(pathGetOrderItems, id),
+		nil,
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}

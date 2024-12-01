@@ -33,43 +33,37 @@ const (
 	updateFieldPaymentStatus = "payment_status"
 )
 
-func (s OrderStatus) String() string {
-	switch s {
-	case StatusPending:
-		return "pending"
-	case StatusUpdated:
-		return "updated"
-	case StatusProcessing:
-		return "processing"
-	case StatusReady:
-		return "ready"
-	case StatusPaid:
-		return "paid"
-	case StatusPacked:
-		return "packed"
-	case StatusShipped:
-		return "shipped"
-	case StatusReceived:
-		return "received"
-	case StatusCompleted:
-		return "completed"
-	case StatusOCR:
-		return "ocr"
-	case StatusNPB:
-		return "npb"
-	case StatusNPX:
-		return "npx"
-	case StatusNRS:
-		return "nrs"
-	case StatusNSS:
-		return "nss"
-	case StatusCancelled:
-		return "cancelled"
-	case StatusPurged:
-		return "purged"
-	default:
-		return ""
+var (
+	statuses = map[OrderStatus]string{
+		StatusPending:    "pending",
+		StatusUpdated:    "updated",
+		StatusProcessing: "processing",
+		StatusReady:      "ready",
+		StatusPaid:       "paid",
+		StatusPacked:     "packed",
+		StatusShipped:    "shipped",
+		StatusReceived:   "received",
+		StatusCompleted:  "completed",
+		StatusOCR:        "ocr",
+		StatusNPB:        "npb",
+		StatusNPX:        "npx",
+		StatusNRS:        "nrs",
+		StatusNSS:        "nss",
+		StatusCancelled:  "cancelled",
+		StatusPurged:     "purged",
 	}
+
+	OrderStatusMap = make(map[string]OrderStatus)
+)
+
+func init() {
+	for k, v := range statuses {
+		OrderStatusMap[v] = k
+	}
+}
+
+func (s OrderStatus) String() string {
+	return statuses[s]
 }
 
 var buyerStatuses = map[OrderStatus]interface{}{

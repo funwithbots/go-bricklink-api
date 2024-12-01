@@ -1,7 +1,7 @@
 package inventory
 
 import (
-	bl "github.com/funwithbots/go-bricklink-api"
+	bricklink "github.com/funwithbots/go-bricklink-api"
 )
 
 const (
@@ -19,9 +19,9 @@ const (
 )
 
 type Inventory struct {
-	bl.Bricklink
+	*bricklink.Bricklink
 }
 
-func New(b bl.Bricklink) *Inventory {
+func New(b *bricklink.Bricklink) *Inventory {
 	return &Inventory{b}
 }

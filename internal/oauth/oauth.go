@@ -22,6 +22,7 @@ type OAuth1 struct {
 
 const headerPlaceholder = "OAuth oauth_consumer_key=\"%s\", oauth_nonce=\"%s\", oauth_signature=\"%s\", oauth_signature_method=\"%s\", oauth_timestamp=\"%s\", oauth_token=\"%s\", oauth_version=\"%s\""
 
+// BuildOAuth1Header builds and returns the http oauth header.
 // Params being any key-value url query parameter pairs
 func (auth OAuth1) BuildOAuth1Header(method, path string, params map[string]string) string {
 	vals := auth.getURLVals(params)

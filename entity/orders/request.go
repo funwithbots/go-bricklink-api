@@ -17,18 +17,19 @@ const (
 // It is used for feedback and orders.
 // out = from this user
 // in = to this user
-type Direction int
+type Direction string
 
 const (
-	DirectionIn = iota
-	DirectionOut
+	DirectionIn  = "in"
+	DirectionOut = "out"
 )
 
-func (dir Direction) String() string {
-	if dir == DirectionOut {
-		return "out"
+func (dir *Direction) String() string {
+	if dir == nil || *dir != "out" {
+		return "in"
 	}
-	return "in"
+
+	return "out"
 }
 
 type RequestOption func(opts *requestOptions)

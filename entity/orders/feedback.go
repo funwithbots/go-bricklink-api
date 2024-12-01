@@ -14,7 +14,7 @@ import (
 
 // Feedback represents a feedback resource.
 type Feedback struct {
-	ID        int         `json:"feedback_id, omitempty"`
+	ID        int         `json:"feedback_id,omitempty"`
 	OrderID   int         `json:"order_id"`
 	From      string      `json:"from,omitempty"`
 	To        string      `json:"to,omitempty"`

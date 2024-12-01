@@ -16,7 +16,15 @@ type Color struct {
 	ColorType string `json:"color_type"`
 }
 
-var Colors map[int]Color
+const (
+	noColor = 0
+)
+
+var colorMap = make(map[int]Color)
+
+func NoColor() int {
+	return noColor
+}
 
 func (c Color) PrimaryKey() int {
 	return c.ID
@@ -28,6 +36,15 @@ func (c Color) Label() entity.Label {
 
 // GetColors returns a list of colors.
 func (r *Reference) GetColors() ([]Color, error) {
+	// if colorMap is primed, return those values
+	if len(colorMap) > 0 {
+		colors := make([]Color, 0, len(colorMap))
+		for _, color := range colorMap {
+			colors = append(colors, color)
+		}
+		return colors, nil
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 
@@ -52,11 +69,21 @@ func (r *Reference) GetColors() ([]Color, error) {
 		return nil, err
 	}
 
+	// prime colorMap
+	for _, color := range colors {
+		colorMap[color.ID] = color
+	}
+
 	return colors, nil
 }
 
 // GetColor returns a color by color ID.
 func (r *Reference) GetColor(colorID int) (*Color, error) {
+	// if colorMap is primed, try to get the color without another call to Bricklink.
+	if color, ok := colorMap[colorID]; ok {
+		return &color, nil
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), r.Timeout)
 	defer cancel()
 

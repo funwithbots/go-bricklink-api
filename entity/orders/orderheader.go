@@ -29,34 +29,38 @@ type Header struct {
 	BuyerOrderCount   int        `json:"buyer_order_count,omitempty"`
 	IsFiled           *bool      `json:"is_filed,omitempty"`
 	DriveThruSent     *bool      `json:"drive_thru_sent,omitempty"`
+	TaxCollected      *bool      `json:"salesTax_collected_by_bl ,omitempty"`
 	Payment           struct {
 		Method       string     `json:"method,omitempty"`
 		CurrencyCode string     `json:"currency_code,omitempty"`
 		DatePaid     *time.Time `json:"date_paid,omitempty"`
 		Status       string     `json:"status,omitempty"`
 	} `json:"payment,omitempty"`
-	Shipping struct {
-		MethodID     int        `json:"method_id,omitempty"`
-		Method       string     `json:"method,omitempty"`
-		TrackingLink string     `json:"tracking_link,omitempty"`
-		TrackingNo   string     `json:"tracking_no,omitempty"`
-		DateShipped  *time.Time `json:"date_shipped,omitempty"`
-		Address      *struct {
-			Name struct {
-				Full string `json:"full,omitempty"`
-			} `json:"name,omitempty"`
-			Full        string `json:"full,omitempty"`
-			CountryCode string `json:"country_code,omitempty"`
-		} `json:"address,omitempty"`
-	} `json:"shipping,omitempty"`
-	Cost     Cost `json:"cost,omitempty"`
-	DispCost Cost `json:"disp_cost,omitempty"`
+	Shipping Shipping `json:"shipping,omitempty"`
+	Cost     Cost     `json:"cost,omitempty"`
+	DispCost Cost     `json:"disp_cost,omitempty"`
+}
+
+type Shipping struct {
+	MethodID     int        `json:"method_id,omitempty"`
+	Method       string     `json:"method,omitempty"`
+	TrackingLink string     `json:"tracking_link,omitempty"`
+	TrackingNo   string     `json:"tracking_no,omitempty"`
+	DateShipped  *time.Time `json:"date_shipped,omitempty"`
+	Address      *struct {
+		Name struct {
+			Full string `json:"full,omitempty"`
+		} `json:"name,omitempty"`
+		Full        string `json:"full,omitempty"`
+		CountryCode string `json:"country_code,omitempty"`
+	} `json:"address,omitempty"`
 }
 
 type Cost struct {
 	CurrencyCode string `json:"currency_code,omitempty"`
 	Subtotal     string `json:"subtotal,omitempty"`
 	GrandTotal   string `json:"grand_total,omitempty"`
+	Tax          string `json:"salesTax_collected_by_BL,omitempty"`
 	Etc1         string `json:"etc1,omitempty"`
 	Etc2         string `json:"etc2,omitempty"`
 	Insurance    string `json:"insurance,omitempty"`
@@ -104,9 +108,9 @@ func (o *Orders) GetOrderHeader(id int) (*Header, error) {
 }
 
 // GetOrderHeaders retrieves a list of orders you received or placed.
-// It does not include order items, messages, or problems.
-// Use GetOrders to retrieve the full order details.
 // https://www.bricklink.com/v3/api.page?page=get-orders
+// It does not include order items, messages, or problems.
+// Use the GetOrder() helper to retrieve an order with the full order details.
 func (o *Orders) GetOrderHeaders(options ...RequestOption) ([]Header, error) {
 	var opts requestOptions
 	opts.withOpts(options)
@@ -159,6 +163,8 @@ func (o *Orders) UpdateOrder(header Header) (*Header, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), o.Timeout)
 	defer cancel()
 
+	// If shipping date needs the precise format from the API docs, create a custom marshaller for the date
+	// using .Format("2006-01-02T15:04:05.000Z")
 	body, err := json.Marshal(h)
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package orders
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -82,6 +83,28 @@ func (o Orders) GetOrder(id int) (*Order, error) {
 	}
 
 	return &order, nil
+}
+
+func (o *Orders) Update(id int, order Order) error {
+	if id == 0 {
+		return fmt.Errorf("a positive value for id is required")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), o.Timeout)
+	defer cancel()
+
+	body, err := json.Marshal(order)
+	if err != nil {
+		return err
+	}
+
+	req, err := o.NewRequestWithContext(ctx, http.MethodPut, fmt.Sprintf(pathUpdate, id), nil, body)
+	if err != nil {
+		return err
+	}
+
+	_, err = o.Client.Do(req)
+	return err
 }
 
 // UpdateOrderStatus updates the order status for an order.
