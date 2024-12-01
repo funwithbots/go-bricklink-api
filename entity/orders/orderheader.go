@@ -108,9 +108,9 @@ func (o *Orders) GetOrderHeader(id int) (*Header, error) {
 }
 
 // GetOrderHeaders retrieves a list of orders you received or placed.
-// It does not include order items, messages, or problems.
-// Use GetOrders to retrieve the full order details.
 // https://www.bricklink.com/v3/api.page?page=get-orders
+// It does not include order items, messages, or problems.
+// Use the GetOrder() helper to retrieve an order with the full order details.
 func (o *Orders) GetOrderHeaders(options ...RequestOption) ([]Header, error) {
 	var opts requestOptions
 	opts.withOpts(options)

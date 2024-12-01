@@ -19,6 +19,7 @@ const (
 	pathCreateMemberNote   = "/members/%s/my_notes"
 	pathUpdateMemberNote   = "/members/%s/my_notes"
 	pathDeleteMemberNote   = "/members/%s/my_notes"
+	pathUpdate             = "/orders/%d"
 	pathUpdateOrder        = "/orders/%d"
 	pathUpdateStatus       = "/orders/%d/status"
 	pathUpdatePayment      = "/orders/%d/payment_status"
@@ -37,8 +38,7 @@ func New(b *bricklink.Bricklink) (*Orders, error) {
 	o := Orders{}
 	o.Bricklink = b
 
-	err := o.loadShippingMethods()
-	if err != nil {
+	if err := o.loadShippingMethods(); err != nil {
 		return nil, err
 	}
 
