@@ -80,12 +80,14 @@ func WithExcludeItemType(itemType bl.ItemType) RequestOption {
 	}
 }
 
+// WithIncludeStatus adds a stockroom or availability status to the request.
 func WithIncludeStatus(status Status) RequestOption {
 	return func(opts *requestOptions) {
 		opts.statuses = append(opts.statuses, status.String())
 	}
 }
 
+// WithExcludeStatus excludes a stockroom or availability status to the request.
 func WithExcludeStatus(status Status) RequestOption {
 	return func(opts *requestOptions) {
 		opts.statuses = append(opts.statuses, fmt.Sprintf("-%s", status.String()))

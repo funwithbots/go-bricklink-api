@@ -85,7 +85,7 @@ func (ro *requestOptions) toQuery(target queryTarget) (map[string]string, error)
 			params["guide_type"] = fmt.Sprintf("%s", *ro.guideType)
 		}
 		if ro.condition != nil {
-			params["condition"] = fmt.Sprintf("%s", *ro.condition)
+			params["new_or_used"] = fmt.Sprintf("%s", *ro.condition)
 		}
 		if ro.countryCode != nil {
 			params["country_code"] = fmt.Sprintf("%s", *ro.countryCode)
