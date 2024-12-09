@@ -11,7 +11,7 @@ type content struct {
 	Data json.RawMessage `json:"data"`
 }
 
-func Parse(body io.Reader, v interface{}) error {
+func Parse(body io.Reader, v any) error {
 	buf, err := io.ReadAll(body)
 	if err != nil {
 		return err
@@ -30,9 +30,5 @@ func Parse(body io.Reader, v interface{}) error {
 		return nil
 	}
 
-	if err := json.Unmarshal(c.Data, &v); err != nil {
-		return err
-	}
-
-	return nil
+	return json.Unmarshal(c.Data, &v)
 }

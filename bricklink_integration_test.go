@@ -21,6 +21,7 @@ import (
 // Set this to a pending order to test endpoints that can update the order.
 var pendingOrderID = 0
 var useTestServer = true
+var validOrderID int
 
 type testServerParams struct {
 	UseTestServer bool
@@ -457,6 +458,8 @@ func TestOrders(t *testing.T) {
 			}
 			if !assert.NotEqual(t, 0, len(unfiled), "no unfiled orders found") {
 				t.SkipNow()
+			} else {
+				validOrderID = unfiled[0].PrimaryKey()
 			}
 
 			// if both filed and unfiled orders are found, make sure the lists don't match
@@ -713,8 +716,12 @@ func TestGetOrder(t *testing.T) {
 	}{
 		{
 			name:    "orders test",
-			OrderID: 20712769,
+			OrderID: validOrderID,
 		},
+	}
+
+	if validOrderID == 0 {
+		t.SkipNow()
 	}
 
 	serverOpts := testServerParams{
